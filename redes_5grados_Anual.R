@@ -112,6 +112,9 @@ print_all(unweighted.net)
 
 ### Red compleja no pesada ###
 
+source("scripts/MastersThesis/functions/graph_world_network.R")
+
+
 # Guardamos todos los links de la red en formato "from-to" indicando de un id a otro
 edges <- get.edgelist(unweighted.net) %>% data.frame() %>% setNames(c("from", "to"))
 
@@ -203,7 +206,7 @@ library(rgeos)
 ########## Metricas de redes complejas ##########
 
 # Cargamos función quantity2clim
-source("scripts/scripts_git/functions/quantity2clim.R")
+source("scripts/MastersThesis/functions/quantity2clim.R")
 
 ### Red compleja no pesada ###
 
@@ -269,10 +272,10 @@ climS <- quantity2clim(S, ref.grid = ba.5deg.std.anom, ref.mask = mask, what = "
 spatialPlot(climS, backdrop.theme = "coastline", main = "Strength")
 
 
-source("scripts/scripts_git/functions/Graph_from_Grid.R")
+source("scripts/MastersThesis/functions/Graph_from_Grid.R")
 
 
-source("scripts/scripts_git/functions/graph2measure.R")
+source("scripts/MastersThesis/functions/graph2measure.R")
 
 
 graphObj.5deg <- Graph_from_Grid(ba.5deg, th = th, mask = mask)
