@@ -109,83 +109,13 @@ print_all(unweighted.net)
 
 #https://www.r-bloggers.com/2018/05/three-ways-of-visualizing-a-graph-on-a-map/
 
-
-### Red compleja no pesada ###
-
 source("scripts/MastersThesis/functions/graph_world_network.R")
 
-
-# Guardamos todos los links de la red en formato "from-to" indicando de un id a otro
-edges <- get.edgelist(unweighted.net) %>% data.frame() %>% setNames(c("from", "to"))
-
-# A?adimos a los links la informacion de las coordenadas de cada id
-edges_for_plot <- edges %>%
-  inner_join(coords.2d %>% select(id, lon, lat), by = c('from' = 'id')) %>%
-  rename(x = lon, y = lat) %>%
-  inner_join(coords.2d %>% select(id, lon, lat), by = c('to' = 'id')) %>%
-  rename(xend = lon, yend = lat)
-
-# Tema del mapa 
-maptheme <- theme(panel.grid = element_blank()) +
-  theme(axis.text = element_blank()) +
-  theme(axis.ticks = element_blank()) +
-  theme(axis.title = element_blank()) +
-  theme(legend.position = "bottom") +
-  theme(panel.grid = element_blank()) +
-  theme(panel.background = element_rect(fill = "#596673")) +
-  theme(plot.margin = unit(c(0, 0, 0.5, 0), 'cm'))
-
-# Background del mapamundi
-country_shapes <- geom_polygon(aes(x = long, y = lat, group = group),
-                               data = map_data('world'),
-                               fill = "#CECECE", color = "#515151",
-                               size = 0.15)
-mapcoords <- coord_fixed(xlim = c(-150, 180), ylim = c(-55, 80))
-
-# Plot
-ggplot(coords.2d) + country_shapes +
-  geom_curve(aes(x = x, y = y, xend = xend, yend = yend),
-             data = edges_for_plot, curvature = 0.33,
-             alpha = 0.5, col = "blue") +
-  mapcoords + maptheme
+### Red compleja no pesada ###
+graph_world_network(unweighted.net, coords.2d)
 
 ### Red compleja pesada ###
-
-# Guardamos todos los links de la red en formato "from-to" indicando de un id a otro
-edges <- get.edgelist(weighted.net) %>% data.frame() %>% setNames(c("from", "to"))
-edges$weight <- E(weighted.net)$weight
-
-# A?adimos a los links la informacion de las coordenadas de cada id
-edges_for_plot <- edges %>%
-  inner_join(coords.2d %>% select(id, lon, lat), by = c('from' = 'id')) %>%
-  rename(x = lon, y = lat) %>%
-  inner_join(coords.2d %>% select(id, lon, lat), by = c('to' = 'id')) %>%
-  rename(xend = lon, yend = lat)
-
-# Tema del mapa 
-maptheme <- theme(panel.grid = element_blank()) +
-  theme(axis.text = element_blank()) +
-  theme(axis.ticks = element_blank()) +
-  theme(axis.title = element_blank()) +
-  theme(legend.position = "bottom") +
-  theme(panel.grid = element_blank()) +
-  theme(panel.background = element_rect(fill = "#596673")) +
-  theme(plot.margin = unit(c(0, 0, 0.5, 0), 'cm'))
-
-# Background del mapamundi
-country_shapes <- geom_polygon(aes(x = long, y = lat, group = group),
-                               data = map_data('world'),
-                               fill = "#CECECE", color = "#515151",
-                               size = 0.15)
-mapcoords <- coord_fixed(xlim = c(-150, 180), ylim = c(-55, 80))
-
-# Plot
-ggplot(coords.2d) + country_shapes +
-  geom_curve(aes(x = x, y = y, xend = xend, yend = yend, color = weight),
-             data = edges_for_plot, curvature = 0.33,
-             alpha = 0.5) +
-  mapcoords + maptheme
-
+graph_world_network(weighted.net, coords.2d, weighted = TRUE)
 
 
 ### Mapa en polares ###
