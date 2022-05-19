@@ -272,26 +272,7 @@ spatialPlot(climS, backdrop.theme = "coastline", main = "Strength")
 source("scripts/scripts_git/functions/Graph_from_Grid.R")
 
 
-graph2measure <- function(graphObj) {
-  
-  # strength
-  if(!is.null(edge_attr(graphObj$graph))){
-    strength <- igraph::strength(graphObj$graph)
-  } else {strength <- NA}
-  
-  # area weighted connectivity
-  # Calculacion area total:
-  sumArea <- sum(cos(graphObj$VertexCoords$y/(180)*pi))
-  # Calculacion Area weighted connectivity per gridbox: 
-  awconnectivity <- as.vector(cos(graphObj$VertexCoords$y/(180)*pi)%*%graphObj$adjacency) / sumArea
-  
-  out <- list("strength" = close, 
-              "awconnectivity" = awconnectivity)
-  attr(out, "Xcoords") <- attr(graphObj, "Xcoords")
-  attr(out, "Ycoords") <- attr(graphObj, "Ycoords")
-  attr(out, "ref.dates") <- attr(graphObj, "ref.dates")
-  return(out)
-}
+source("scripts/scripts_git/functions/graph2measure.R")
 
 
 graphObj.5deg <- Graph_from_Grid(ba.5deg, th = th, mask = mask)
