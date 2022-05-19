@@ -202,20 +202,8 @@ library(rgeos)
 
 ########## Metricas de redes complejas ##########
 
-# Funcion generica para pasar una cantidad a objeto Climatology
-quantity2clim <- function(quantity, ref.grid, ref.mask = NULL, what, backperm = NULL) {
-  if(!is.null(backperm)){quantity <- quantity[backperm]}
-  if(!is.null(ref.mask)){
-    L = length(ref.grid$xyCoords$x) * length(ref.grid$xyCoords$y)
-    mat <- matrix(NA, nrow = 1, ncol = L)  
-    mat[mask] <- quantity
-  }else{
-    mat <- matrix(quantity, nrow = 1)
-  }
-  ref.grid$Data <- mat2Dto3Darray(mat, x = ref.grid$xyCoords$x , y = ref.grid$xyCoords$y)
-  attr(ref.grid$Data, "climatology:fun") <- what
-  return(ref.grid)
-}
+# Cargamos función quantity2clim
+source("scripts/scripts_git/functions/quantity2clim.R")
 
 ### Red compleja no pesada ###
 
