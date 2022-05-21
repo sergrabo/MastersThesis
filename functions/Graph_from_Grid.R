@@ -55,7 +55,7 @@ Graph_from_Grid <- function(grid,
   
   # Mask
   if(!is.null(mask)){
-    time.coords.matrix <- times.coords.matrix[,mask]
+    time.coords.matrix <- time.coords.matrix[,mask]
   }
   
   # Correlation matrix
