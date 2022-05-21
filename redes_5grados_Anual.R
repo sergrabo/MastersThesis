@@ -28,8 +28,8 @@ th <- 0.65 # Threshold
 res <- 5 / 0.25 # Resolucion
 
 # Cargamos los datos pre-adaptados
-load("./Rdata/MODIS_OLCI_ba_200101-202004.Rdata", verbose = TRUE)
-load("./Rdata/MODIS_OLCI_fba_200101-202004.Rdata", verbose = TRUE)
+load("./Rdata/MODIS_OLCI_ba_200101-202010.Rdata", verbose = TRUE)
+load("./Rdata/MODIS_OLCI_fba_200101-202010.Rdata", verbose = TRUE)
 
 # ba.merge es el dataset original a 0.25 grados de resolucion espacial
 str(ba.merge)
