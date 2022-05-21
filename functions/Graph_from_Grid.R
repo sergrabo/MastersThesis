@@ -26,7 +26,7 @@ Graph_from_Grid <- function(grid,
                             th = 0.8,
                             mask = NULL,
                             subind = NULL,
-                            method = c("spearman", "pearson")) {
+                            method = c("spearman")) {
   
   annual <- ifelse(getTimeResolution(grid) == "YY", TRUE, FALSE)
   seas <- getSeason(grid)
