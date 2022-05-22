@@ -59,10 +59,10 @@ load("./Rdata/mask.Rdata", verbose = TRUE)
 
 ########## Calculo de la matriz de correlaciones ##########
 
-# Aplicamos una capa para filtrar segun el area que puede quemarse (fraction of burnable area)
-fba.clim <- climatology(fba.5deg) # %>% redim(drop = TRUE) -> No necesario en este caso
-fba.vec <- array3Dto2Dmat(fba.clim$Data)[1,]
-mask <- which(fba.vec > 0.1)
+# # Aplicamos una capa para filtrar segun el area que puede quemarse (fraction of burnable area)
+# fba.clim <- climatology(fba.5deg) # %>% redim(drop = TRUE) -> No necesario en este caso
+# fba.vec <- array3Dto2Dmat(fba.clim$Data)[1,]
+# mask <- which(fba.vec > 0.1)
 
 # Transformamos el array3D a matriz2D
 mat2d <- array3Dto2Dmat(ba.5deg.std.anom$Data)[,mask]
