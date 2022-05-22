@@ -60,16 +60,16 @@ graph_world_network <- function(graphObj){
   mapcoords <- coord_fixed(xlim = c(-150, 180), ylim = c(-55, 80))
   
   # Plot
+  if(weighted == FALSE){
   ggplot(coords) + country_shapes +
     geom_curve(aes(x = x, y = y, xend = xend, yend = yend),
                data = edges_for_plot, curvature = 0.33,
                alpha = 0.5, col = "blue") +
     mapcoords + maptheme
-  
-  if(weighted == TRUE){
-    ggplot(coords) + country_shapes +
-      geom_curve(aes(x = x, y = y, xend = xend, yend = yend, color = weight),
-                 data = edges_for_plot, curvature = 0.33,
-                 alpha = 0.5) +
-      mapcoords + maptheme}
+  }else{
+  ggplot(coords) + country_shapes +
+    geom_curve(aes(x = x, y = y, xend = xend, yend = yend, color = weight),
+               data = edges_for_plot, curvature = 0.33,
+               alpha = 0.5) +
+    mapcoords + maptheme}
 }
