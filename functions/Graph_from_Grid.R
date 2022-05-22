@@ -33,19 +33,20 @@ Graph_from_Grid <- function(grid,
   coords <- getCoordinates(grid)
   x <- coords$x
   y <- coords$y
-  ref.coords <- expand.grid(y, x)[2:1]
+  ref.coords <- expand.grid(y, x)[mask,2:1]
   names(ref.coords) <- c("x", "y")
   ref.dates <- getRefDates(grid)
-  if (!annual) {
-    seas.list <- lapply(1:length(seas), function(i) {
-      subsetGrid(grid, season = seas[i]) %>% scaleGrid() %>% redim(drop = TRUE)
-    })
-    aux <-  bindGrid(seas.list, dimension = "time")
-    aux <-  redim(aux, drop = TRUE)
-    seas.list <- NULL
-  } else {
-    aux <- scaleGrid(grid) %>% redim(drop = TRUE)
-  }
+  # if (!annual) {
+  #   seas.list <- lapply(1:length(seas), function(i) {
+  #     subsetGrid(grid, season = seas[i]) %>% scaleGrid() %>% redim(drop = TRUE)
+  #   })
+  #   aux <-  bindGrid(seas.list, dimension = "time")
+  #   aux <-  redim(aux, drop = TRUE)
+  #   seas.list <- NULL
+  # } else {
+  #   aux <- scaleGrid(grid) %>% redim(drop = TRUE)
+  # }
+  aux <- grid
   grid <- NULL
   time.coords.matrix <- array3Dto2Dmat(aux$Data)
   
@@ -73,7 +74,7 @@ Graph_from_Grid <- function(grid,
   graphObj <- list("graph" = graph,
                    "data_coords" = time.coords.matrix,
                    "correlation" = cor.matrix,
-                   "VertexCoords" = ref.coords ,
+                   "VertexCoords" = ref.coords,
                    "adjacency" = adj.matrix)
   
   attr(graphObj, "Xcoords") <- x
