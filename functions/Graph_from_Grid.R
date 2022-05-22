@@ -24,6 +24,7 @@
 
 Graph_from_Grid <- function(grid,
                             th = 0.8,
+                            weighted = FALSE,
                             mask = NULL,
                             subind = NULL,
                             method = c("spearman")) {
@@ -32,7 +33,8 @@ Graph_from_Grid <- function(grid,
   x <- coords$x
   y <- coords$y
   ref.coords <- expand.grid(y, x)[mask,2:1]
-  names(ref.coords) <- c("x", "y")
+  ref.coords$id <- 1:nrow(ref.coords)
+  names(ref.coords) <- c("x", "y", "id")
   ref.dates <- getRefDates(grid)
 
   aux <- grid
@@ -51,14 +53,23 @@ Graph_from_Grid <- function(grid,
   # Correlation matrix
   cor.matrix <- cor(time.coords.matrix, method = method) %>% abs()
   adj.matrix <- cor.matrix
+  
   # Adjacency matrix
   diag(adj.matrix) <- 0
   adj.matrix[adj.matrix <= th ] <- 0
   adj.matrix[adj.matrix > th ] <- 1
-  
   # Graph
   graph <- graph_from_adjacency_matrix(adj.matrix, mode = "undirected")
   
+  # Correlation-weighted graph
+  if(weighted == TRUE){
+    # Adjacency matrix
+    diag(adj.matrix) <- 0
+    adj.matrix[adj.matrix <= th] <- 0
+    adj.matrix[is.na(adj.matrix)] <- 0
+    # Graph
+    graph <- graph_from_adjacency_matrix(adj.matrix, weighted = TRUE, mode = "undirected")
+  }
   graphObj <- list("graph" = graph,
                    "data_coords" = time.coords.matrix,
                    "correlation" = cor.matrix,
@@ -68,5 +79,6 @@ Graph_from_Grid <- function(grid,
   attr(graphObj, "Xcoords") <- x
   attr(graphObj, "Ycoords") <- y
   attr(graphObj, "ref.dates") <- ref.dates
+  attr(graphObj, "weightedGraph") <- weighted
   return(graphObj)
 }

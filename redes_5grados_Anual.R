@@ -209,5 +209,7 @@ source("scripts/MastersThesis/functions/Graph_from_Grid.R")
 source("scripts/MastersThesis/functions/graph2measure.R")
 
 
-graphObj.5deg <- Graph_from_Grid(ba.5deg, th = th, mask = mask)
+graphObj.5deg <- Graph_from_Grid(ba.5deg.std.anom, th = th, mask = mask)
+
+graphObj.5deg.weighted <- Graph_from_Grid(ba.5deg.std.anom, th = th, mask = mask, weighted = TRUE)
 measures.5deg <- graph2measure(graphObj.5deg)
