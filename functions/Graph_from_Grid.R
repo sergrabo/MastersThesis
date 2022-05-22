@@ -28,24 +28,13 @@ Graph_from_Grid <- function(grid,
                             subind = NULL,
                             method = c("spearman")) {
   
-  annual <- ifelse(getTimeResolution(grid) == "YY", TRUE, FALSE)
-  seas <- getSeason(grid)
   coords <- getCoordinates(grid)
   x <- coords$x
   y <- coords$y
   ref.coords <- expand.grid(y, x)[mask,2:1]
   names(ref.coords) <- c("x", "y")
   ref.dates <- getRefDates(grid)
-  # if (!annual) {
-  #   seas.list <- lapply(1:length(seas), function(i) {
-  #     subsetGrid(grid, season = seas[i]) %>% scaleGrid() %>% redim(drop = TRUE)
-  #   })
-  #   aux <-  bindGrid(seas.list, dimension = "time")
-  #   aux <-  redim(aux, drop = TRUE)
-  #   seas.list <- NULL
-  # } else {
-  #   aux <- scaleGrid(grid) %>% redim(drop = TRUE)
-  # }
+
   aux <- grid
   grid <- NULL
   time.coords.matrix <- array3Dto2Dmat(aux$Data)
@@ -60,9 +49,8 @@ Graph_from_Grid <- function(grid,
   }
   
   # Correlation matrix
-  cor.matrix <- cor(time.coords.matrix, method = method)
-  abs.cor.matrix <- abs(cor.matrix)
-  adj.matrix <- abs.cor.matrix
+  cor.matrix <- cor(time.coords.matrix, method = method) %>% abs()
+  adj.matrix <- cor.matrix
   # Adjacency matrix
   diag(adj.matrix) <- 0
   adj.matrix[adj.matrix <= th ] <- 0
