@@ -26,7 +26,7 @@
 #' 
 
 
-graph_world_network <- function(graphObj, weighted = FALSE){
+graph_world_network <- function(graphObj){
   graph <- graphObj$graph
   coords <- graphObj$VertexCoords
   weighted = attr(graphObj, "weighted")
