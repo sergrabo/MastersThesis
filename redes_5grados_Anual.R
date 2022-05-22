@@ -115,10 +115,10 @@ print_all(unweighted.net)
 source("scripts/MastersThesis/functions/graph_world_network.R")
 
 ### Red compleja no pesada ###
-graph_world_network(unweighted.net, coords.2d)
+graph_world_network(unweighted.net)
 
 ### Red compleja pesada ###
-graph_world_network(weighted.net, coords.2d, weighted = TRUE)
+graph_world_network(weighted.net)
 
 
 ### Mapa en polares ###
@@ -209,7 +209,6 @@ source("scripts/MastersThesis/functions/Graph_from_Grid.R")
 source("scripts/MastersThesis/functions/graph2measure.R")
 
 
-graphObj.5deg <- Graph_from_Grid(ba.5deg.std.anom, th = th, mask = mask)
-
-graphObj.5deg.weighted <- Graph_from_Grid(ba.5deg.std.anom, th = th, mask = mask, weighted = TRUE)
+unweighted.net <- Graph_from_Grid(ba.5deg.std.anom, th = th, mask = mask)
+weighted.net <- Graph_from_Grid(ba.5deg.std.anom, th = th, mask = mask, weighted = TRUE)
 measures.5deg <- graph2measure(graphObj.5deg)

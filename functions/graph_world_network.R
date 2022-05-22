@@ -26,12 +26,15 @@
 #' 
 
 
-graph_world_network <- function(graph, coords, weighted = FALSE){
+graph_world_network <- function(graphObj, weighted = FALSE){
+  graph <- graphObj$graph
+  coords <- graphObj$VertexCoords
+  weighted = attr(graphObj, "weighted")
   # Abrimos ventana para el plot
   x11()
   # Guardamos todos los links de la red en formato "from-to" indicando de un id a otro
   edges <- get.edgelist(graph) %>% data.frame() %>% setNames(c("from", "to"))
-  if(weighted == TRUE){edges$weight <- E(weighted.net)$weight}
+  if(weighted == TRUE){edges$weight <- E(graph)$weight}
   # Añadimos a los links la informacion de las coordenadas de cada id
   edges_for_plot <- edges %>%
     inner_join(coords %>% select(id, lon, lat), by = c('from' = 'id')) %>%

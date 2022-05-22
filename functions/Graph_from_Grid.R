@@ -34,7 +34,7 @@ Graph_from_Grid <- function(grid,
   y <- coords$y
   ref.coords <- expand.grid(y, x)[mask,2:1]
   ref.coords$id <- 1:nrow(ref.coords)
-  names(ref.coords) <- c("x", "y", "id")
+  names(ref.coords) <- c("lon", "lat", "id")
   ref.dates <- getRefDates(grid)
 
   aux <- grid
@@ -64,6 +64,7 @@ Graph_from_Grid <- function(grid,
   # Correlation-weighted graph
   if(weighted == TRUE){
     # Adjacency matrix
+    adj.matrix <- cor.matrix
     diag(adj.matrix) <- 0
     adj.matrix[adj.matrix <= th] <- 0
     adj.matrix[is.na(adj.matrix)] <- 0
