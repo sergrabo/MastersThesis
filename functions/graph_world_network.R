@@ -35,6 +35,13 @@ graph_world_network <- function(graphObj){
   # Guardamos todos los links de la red en formato "from-to" indicando de un id a otro
   edges <- get.edgelist(graph) %>% data.frame() %>% setNames(c("from", "to"))
   if(weighted == TRUE){edges$weight <- E(graph)$weight}
+  
+  # Signed adjacency matrix
+  cor <- unweighted.net$correlation
+  adj <- unweighted.net$adjacency
+  signed.adj <- sign(cor) * adj
+  edges$sign <- mapply(FUN = function(x,y) signed.adj[x,y], edges$from, edges$to)
+
   # Añadimos a los links la informacion de las coordenadas de cada id
   edges_for_plot <- edges %>%
     inner_join(coords %>% select(id, lon, lat), by = c('from' = 'id')) %>%
@@ -58,14 +65,14 @@ graph_world_network <- function(graphObj){
                                  fill = "#CECECE", color = "#515151",
                                  size = 0.15)
   mapcoords <- coord_fixed(xlim = c(-150, 180), ylim = c(-55, 80))
-  
+  palette <- scale_color_manual(values = c("red", "blue"))
   # Plot
   if(weighted == FALSE){
   ggplot(coords) + country_shapes +
-    geom_curve(aes(x = x, y = y, xend = xend, yend = yend),
+    geom_curve(aes(x = x, y = y, xend = xend, yend = yend, color = as.factor(sign)),
                data = edges_for_plot, curvature = 0.33,
-               alpha = 0.5, col = "blue") +
-    mapcoords + maptheme
+               alpha = 0.5) +
+    palette + mapcoords + maptheme
   }else{
   ggplot(coords) + country_shapes +
     geom_curve(aes(x = x, y = y, xend = xend, yend = yend, color = weight),
