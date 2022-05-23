@@ -51,8 +51,8 @@ Graph_from_Grid <- function(grid,
   }
   
   # Correlation matrix
-  cor.matrix <- cor(time.coords.matrix, method = method) %>% abs()
-  adj.matrix <- cor.matrix
+  cor.matrix <- cor(time.coords.matrix, method = method) 
+  adj.matrix <- cor.matrix %>% abs()
   
   # Adjacency matrix
   diag(adj.matrix) <- 0
@@ -64,7 +64,7 @@ Graph_from_Grid <- function(grid,
   # Correlation-weighted graph
   if(weighted == TRUE){
     # Adjacency matrix
-    adj.matrix <- cor.matrix
+    adj.matrix <- cor.matrix %>% abs()
     diag(adj.matrix) <- 0
     adj.matrix[adj.matrix <= th] <- 0
     adj.matrix[is.na(adj.matrix)] <- 0
