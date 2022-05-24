@@ -26,6 +26,8 @@ graph2measure <- function(graphObj) {
   
   # strength
   if(!is.null(edge_attr(graphObj$graph))){
+    K <- igraph::degree(graphObj$graph, loops = FALSE)
+    B <- betweenness(graphObj$graph, directed = FALSE)
     strength <- igraph::strength(graphObj$graph)
   } else {strength <- NA}
   
@@ -33,9 +35,11 @@ graph2measure <- function(graphObj) {
   # Calculacion area total:
   sumArea <- sum(cos(graphObj$VertexCoords$y/(180)*pi))
   # Calculacion Area weighted connectivity per gridbox: 
-  awconnectivity <- as.vector(cos(graphObj$VertexCoords$y/(180)*pi)%*%graphObj$adjacency) / sumArea
+  awconnectivity <- as.vector(cos(graphObj$VertexCoords$lon/(180)*pi)%*%graphObj$adjacency) / sumArea
   
-  out <- list("strength" = close, 
+  out <- list("degree" = K,
+              "betweenness" = B,
+              "strength" = strength, 
               "awconnectivity" = awconnectivity)
   attr(out, "Xcoords") <- attr(graphObj, "Xcoords")
   attr(out, "Ycoords") <- attr(graphObj, "Ycoords")

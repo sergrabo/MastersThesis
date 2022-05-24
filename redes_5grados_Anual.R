@@ -98,39 +98,24 @@ library(rgeos)
 
 
 ########## Metricas de redes complejas ##########
-
 # Cargamos función quantity2clim
 source("scripts/MastersThesis/functions/quantity2clim.R")
 
 ### Red compleja no pesada ###
+source("scripts/MastersThesis/functions/graph2measure.R")
+
+measures.5deg <- graph2measure(unweighted.net)
 
 # Distribucion de grado
-K <- degree(unweighted.net, loops = FALSE)
-
-climK <- quantity2clim(K, ref.grid = ba.5deg.std.anom, ref.mask = mask, what = "degree")
+climK <- quantity2clim(measures.5deg$degree, ref.grid = ba.5deg.std.anom, ref.mask = mask, what = "degree")
 
 spatialPlot(climK, backdrop.theme = "coastline", main = "Distribución de grado")
 
-# Closeness
-C <- closeness(unweighted.net, normalized = FALSE)
-
-climC <- quantity2clim(C, ref.grid = ba.5deg.std.anom, ref.mask = mask, what = "closeness")
-
-spatialPlot(climC, backdrop.theme = "coastline", main = "Closeness")
-
 # Betweenness
-B <- betweenness(unweighted.net, directed = FALSE)
-
-climB <- quantity2clim(B, ref.grid = ba.5deg.std.anom, ref.mask = mask, what = "betweenness")
+climB <- quantity2clim(measures.5deg$betweenness, ref.grid = ba.5deg.std.anom, ref.mask = mask, what = "betweenness")
 
 spatialPlot(climB, backdrop.theme = "coastline", main = "Betweenness")
 
-# Eigenvalues
-E <- spectrum(unweighted.net, algorithm = c("arpack"))
-
-climE <- quantity2clim(E$vectors, ref.grid = ba.5deg.std.anom, ref.mask = mask, what = "eigenvalues")
-
-spatialPlot(climE, backdrop.theme = "coastline", main = "Eigenvalues")
 
 ########## Estudio de clustering en la red ##########
 ceb <- cluster_edge_betweenness(unweighted.net, directed = FALSE)
@@ -152,6 +137,9 @@ spatialPlot(climcom, backdrop.theme = "coastline", main = "Communities", col.reg
 library(sp)
 ?spDistsN1
 
+#Apaño momentáneo para strength
+coords.2d <- unweighted.net$VertexCoords
+adj.mat <- unweighted.net$adjacency
 x <- SpatialPoints(cbind(coords.2d$lon, coords.2d$lat), proj4string = CRS("+init=epsg:4326"))
 dists <- matrix(data = 0, nrow = length(x), ncol = length(x))
 dists[which(adj.mat == 1)] <- spDists(x, longlat = TRUE)[which(adj.mat == 1)]
@@ -165,7 +153,3 @@ climS <- quantity2clim(S, ref.grid = ba.5deg.std.anom, ref.mask = mask, what = "
 
 spatialPlot(climS, backdrop.theme = "coastline", main = "Strength")
 
-
-source("scripts/MastersThesis/functions/graph2measure.R")
-
-measures.5deg <- graph2measure(graphObj.5deg)
