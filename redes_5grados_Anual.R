@@ -53,59 +53,20 @@ res <- 5 / 0.25 # Resolucion
 # spatialPlot(climatology(ba.5deg.std.anom), backdrop.theme = "coastline")
 # # temporalPlot(ba.10deg.std.anom)
 
-# Cargamos los datos ya calculados, para evitar problemas de memoria
-load("./Rdata/ba5degAnom.Rdata", verbose = TRUE)
-load("./Rdata/mask.Rdata", verbose = TRUE)
-
-########## Calculo de la matriz de correlaciones ##########
-
 # # Aplicamos una capa para filtrar segun el area que puede quemarse (fraction of burnable area)
 # fba.clim <- climatology(fba.5deg) # %>% redim(drop = TRUE) -> No necesario en este caso
 # fba.vec <- array3Dto2Dmat(fba.clim$Data)[1,]
 # mask <- which(fba.vec > 0.1)
 
-# Transformamos el array3D a matriz2D
-mat2d <- array3Dto2Dmat(ba.5deg.std.anom$Data)[,mask]
-coords <- getCoordinates(ba.5deg.std.anom)
-coords.2d <- expand.grid(coords$y,coords$x)[mask,2:1] %>% setNames(c("lon", "lat"))
-coords.2d$id <- 1:nrow(coords.2d) # Añadimos id para posterior merge
+# Cargamos los datos ya calculados, para evitar problemas de memoria
+load("./Rdata/ba5degAnom.Rdata", verbose = TRUE)
+load("./Rdata/mask.Rdata", verbose = TRUE)
 
+########## Calculo de las redes complejas ##########
+source("scripts/MastersThesis/functions/Graph_from_Grid.R")
 
-
-# Matriz de correlaciones
-?cor.test #Pendiente cambiar cor por cor.test
-cormat.signed <- cor(mat2d, method = "spearman")
-cormat <- cor(mat2d, method = "spearman") %>% abs()
-
-sign.mask <- sign(cormat.signed)
-
-x11()
-fields::image.plot(cormat)
-
-########## Construccion de redes complejas ##########
-
-
-### Red compleja pesada ###
-
-adj.mat <- cormat
-
-adj.mat[which(cormat < th)] <- 0
-adj.mat[is.na(cormat)] <- 0
-
-
-weighted.net <- graph_from_adjacency_matrix(adj.mat, weighted = TRUE, mode = "undirected", diag = FALSE)
-print_all(weighted.net)
-
-### Red compleja no pesada ###
-
-adj.mat <- matrix(data = NA, nrow = nrow(cormat), ncol = ncol(cormat))
-
-adj.mat[which(cormat < th)] <- 0
-adj.mat[which(cormat >= th)] <- 1
-
-unweighted.net <- graph_from_adjacency_matrix(adj.mat, mode = "undirected", diag = FALSE)
-print_all(unweighted.net)
-
+unweighted.net <- Graph_from_Grid(ba.5deg.std.anom, th = th, mask = mask)
+weighted.net <- Graph_from_Grid(ba.5deg.std.anom, th = th, mask = mask, weighted = TRUE)
 
 ########## Representacion de redes complejas ##########
 
@@ -143,12 +104,12 @@ source("scripts/MastersThesis/functions/quantity2clim.R")
 
 ### Red compleja no pesada ###
 
-# Distribuci?n de grado
+# Distribucion de grado
 K <- degree(unweighted.net, loops = FALSE)
 
 climK <- quantity2clim(K, ref.grid = ba.5deg.std.anom, ref.mask = mask, what = "degree")
 
-spatialPlot(climK, backdrop.theme = "coastline", main = "Distribuci?n de grado")
+spatialPlot(climK, backdrop.theme = "coastline", main = "Distribución de grado")
 
 # Closeness
 C <- closeness(unweighted.net, normalized = FALSE)
@@ -205,10 +166,6 @@ climS <- quantity2clim(S, ref.grid = ba.5deg.std.anom, ref.mask = mask, what = "
 spatialPlot(climS, backdrop.theme = "coastline", main = "Strength")
 
 
-source("scripts/MastersThesis/functions/Graph_from_Grid.R")
 source("scripts/MastersThesis/functions/graph2measure.R")
 
-
-unweighted.net <- Graph_from_Grid(ba.5deg.std.anom, th = th, mask = mask)
-weighted.net <- Graph_from_Grid(ba.5deg.std.anom, th = th, mask = mask, weighted = TRUE)
 measures.5deg <- graph2measure(graphObj.5deg)
