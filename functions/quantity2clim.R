@@ -22,16 +22,23 @@
 #' @references 
 #' 
 #' 
-quantity2clim <- function(quantity, ref.grid, ref.mask = NULL, what, backperm = NULL) {
-  if(!is.null(backperm)){quantity <- quantity[backperm]}
-  if(!is.null(ref.mask)){
-    L = length(ref.grid$xyCoords$x) * length(ref.grid$xyCoords$y)
-    mat <- matrix(NA, nrow = 1, ncol = L)  
-    mat[mask] <- quantity
-  }else{
-    mat <- matrix(quantity, nrow = 1)
+quantity2clim <- function(measList, ref.grid, ref.mask = NULL, backperm = NULL) {
+  climList <- list()
+  for(i in seq_along(measList)){
+    quantity <- measList[[i]]
+    if(!is.null(backperm)){quantity <- quantity[backperm]}
+    if(!is.null(ref.mask)){
+      L = length(ref.grid$xyCoords$x) * length(ref.grid$xyCoords$y)
+      mat <- matrix(NA, nrow = 1, ncol = L)
+      mat[mask] <- quantity
+    }else{
+      mat <- matrix(quantity, nrow = 1)
+    }
+    ref.grid$Data <- mat2Dto3Darray(mat, x = ref.grid$xyCoords$x , y = ref.grid$xyCoords$y)
+    attr(ref.grid$Data, "climatology:fun") <- names(measList)[i]
+    
+    climList[[i]] <- ref.grid
   }
-  ref.grid$Data <- mat2Dto3Darray(mat, x = ref.grid$xyCoords$x , y = ref.grid$xyCoords$y)
-  attr(ref.grid$Data, "climatology:fun") <- what
-  return(ref.grid)
+  names(climList) <- names(measList)
+  return(climList)
 }
