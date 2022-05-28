@@ -59,6 +59,10 @@ Graph_from_Grid <- function(grid,
   adj.matrix[adj.matrix <= th ] <- 0
   adj.matrix[is.na(adj.matrix)] <- 0
   adj.matrix[adj.matrix > th ] <- 1
+  
+  # Signed adjacency matrix
+  signed.adj <- sign(cor.matrix) * adj.matrix
+  signed.adj[is.na(signed.adj)] <- 0
   # Graph
   graph <- graph_from_adjacency_matrix(adj.matrix, mode = "undirected")
   
@@ -76,7 +80,8 @@ Graph_from_Grid <- function(grid,
                    "data_coords" = time.coords.matrix,
                    "correlation" = cor.matrix,
                    "VertexCoords" = ref.coords,
-                   "adjacency" = adj.matrix)
+                   "adjacency" = adj.matrix,
+                   "signed_adjacency" = signed.adj)
   
   attr(graphObj, "Xcoords") <- x
   attr(graphObj, "Ycoords") <- y

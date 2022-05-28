@@ -31,15 +31,13 @@ graph_world_network <- function(graphObj){
   coords <- graphObj$VertexCoords
   weighted = attr(graphObj, "weighted")
   # Abrimos ventana para el plot
-  x11()
+  dev.new()
   # Guardamos todos los links de la red en formato "from-to" indicando de un id a otro
   edges <- get.edgelist(graph) %>% data.frame() %>% setNames(c("from", "to"))
   if(weighted == TRUE){edges$weight <- E(graph)$weight}
   
   # Signed adjacency matrix
-  cor <- unweighted.net$correlation
-  adj <- unweighted.net$adjacency
-  signed.adj <- sign(cor) * adj
+  signed.adj <- graphObj$signed_adjacency
   edges$sign <- mapply(FUN = function(x,y) signed.adj[x,y], edges$from, edges$to)
 
   # Añadimos a los links la informacion de las coordenadas de cada id
