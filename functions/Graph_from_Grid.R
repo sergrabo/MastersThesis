@@ -64,6 +64,11 @@ Graph_from_Grid <- function(grid,
   signed.adj <- sign(cor.matrix) * adj.matrix
   signed.adj[is.na(signed.adj)] <- 0
   
+  # Geographical distance matrix
+  pts <- SpatialPoints(cbind(ref.coords$lon, ref.coords$lat), proj4string = CRS("+init=epsg:4326"))
+  dists <- matrix(data = 0, nrow = length(pts), ncol = length(pts))
+  dists[which(adj.matrix > 0)] <- spDists(pts, longlat = TRUE)[which(adj.matrix > 0)]
+  
   # Graph
   graph <- graph_from_adjacency_matrix(adj.matrix, mode = "undirected")
   
@@ -79,10 +84,7 @@ Graph_from_Grid <- function(grid,
     graph <- graph_from_adjacency_matrix(adj.matrix, weighted = TRUE, mode = "undirected")
   }
   
-  # Geographical distance matrix
-  pts <- SpatialPoints(cbind(ref.coords$lon, ref.coords$lat), proj4string = CRS("+init=epsg:4326"))
-  dists <- matrix(data = 0, nrow = length(pts), ncol = length(pts))
-  dists[which(adj.matrix == 1)] <- spDists(pts, longlat = TRUE)[which(adj.matrix == 1)]
+  
   
   graphObj <- list("graph" = graph,
                    "data_coords" = time.coords.matrix,
