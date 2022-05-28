@@ -84,9 +84,9 @@ graph_world_network(weighted.net)
 
 ### Mapa en polares ###
 
-# remotes::install_github("EarthSystemDiagnostics/grfxtools")
-library(grfxtools)
-library(rgeos)
+# # remotes::install_github("EarthSystemDiagnostics/grfxtools")
+# library(grfxtools)
+# library(rgeos)
 
 # Plot
 # curve_data <- geom_curve(aes(x = x, y = y, xend = xend, yend = yend),
@@ -109,18 +109,21 @@ measures.5deg <- graph2measure(unweighted.net)
 # Distribucion de grado
 climK <- quantity2clim(measures.5deg$degree, ref.grid = ba.5deg.std.anom, ref.mask = mask, what = "degree")
 
-spatialPlot(climK, backdrop.theme = "coastline", main = "Distribución de grado")
+library(RColorBrewer)
+display.brewer.all()
+
+spatialPlot(climK, backdrop.theme = "coastline", main = "Distribución de grado", color.theme = "GnBu")
 
 # Betweenness
 climB <- quantity2clim(measures.5deg$betweenness, ref.grid = ba.5deg.std.anom, ref.mask = mask, what = "betweenness")
 
-spatialPlot(climB, backdrop.theme = "coastline", main = "Betweenness")
+spatialPlot(climB, backdrop.theme = "coastline", main = "Betweenness", color.theme = "YlOrRd", at =seq(0,10000,1000))
 
 
 ########## Estudio de clustering en la red ##########
-ceb <- cluster_edge_betweenness(unweighted.net, directed = FALSE)
+ceb <- cluster_edge_betweenness(unweighted.net$graph, directed = FALSE)
 
-com.mask <- as.integer(dimnames(sizes(ceb)[which(sizes(ceb)>=2)])$`Community sizes`)
+com.mask <- as.integer(dimnames(sizes(ceb)[which(sizes(ceb)>=4)])$`Community sizes`)
 com <- membership(ceb)
 
 com <- ifelse(com %in% com.mask, com, NA)
@@ -149,7 +152,17 @@ dists.net <- graph_from_adjacency_matrix(dists, weighted = TRUE, mode = "undirec
 print_all(dists.net)
 
 S <- strength(dists.net, loops = FALSE)
-climS <- quantity2clim(S, ref.grid = ba.5deg.std.anom, ref.mask = mask, what = "eigenvalues")
+climS <- quantity2clim(S, ref.grid = ba.5deg.std.anom, ref.mask = mask, what = "strength")
 
-spatialPlot(climS, backdrop.theme = "coastline", main = "Strength")
+spatialPlot(climS, backdrop.theme = "coastline", main = "Strength", color.theme = "PuRd")
+
+# Area weighted connectivity
+climAw <- measures.5deg$awconnectivity %>% quantity2clim(ref.grid = ba.5deg.std.anom, ref.mask = mask, what = "awconnectivity")
+spatialPlot(climAw, backdrop.theme = "coastline", main = "Area Weighted Connectivity", color.theme = "PuRd")
+
+# Mean distance per node
+MDN <- S/measures.5deg$degree
+MDN[which(is.nan(MDN))] <- 0
+quantity2clim(MDN, ref.grid = ba.5deg.std.anom, ref.mask = mask, what = "Mean distance per node") %>%
+  spatialPlot(backdrop.theme = "coastline", main = "Mean distance per node", color.theme = "PuRd")
 

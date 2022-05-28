@@ -57,6 +57,7 @@ Graph_from_Grid <- function(grid,
   # Adjacency matrix
   diag(adj.matrix) <- 0
   adj.matrix[adj.matrix <= th ] <- 0
+  adj.matrix[is.na(adj.matrix)] <- 0
   adj.matrix[adj.matrix > th ] <- 1
   # Graph
   graph <- graph_from_adjacency_matrix(adj.matrix, mode = "undirected")
