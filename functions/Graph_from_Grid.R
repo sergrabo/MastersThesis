@@ -52,9 +52,9 @@ Graph_from_Grid <- function(grid,
   
   # Correlation matrix
   cor.matrix <- cor(time.coords.matrix, method = method) 
-  adj.matrix <- cor.matrix %>% abs()
   
   # Adjacency matrix
+  adj.matrix <- cor.matrix %>% abs()
   diag(adj.matrix) <- 0
   adj.matrix[adj.matrix <= th ] <- 0
   adj.matrix[is.na(adj.matrix)] <- 0
@@ -63,6 +63,7 @@ Graph_from_Grid <- function(grid,
   # Signed adjacency matrix
   signed.adj <- sign(cor.matrix) * adj.matrix
   signed.adj[is.na(signed.adj)] <- 0
+  
   # Graph
   graph <- graph_from_adjacency_matrix(adj.matrix, mode = "undirected")
   
@@ -73,15 +74,23 @@ Graph_from_Grid <- function(grid,
     diag(adj.matrix) <- 0
     adj.matrix[adj.matrix <= th] <- 0
     adj.matrix[is.na(adj.matrix)] <- 0
+    
     # Graph
     graph <- graph_from_adjacency_matrix(adj.matrix, weighted = TRUE, mode = "undirected")
   }
+  
+  # Geographical distance matrix
+  pts <- SpatialPoints(cbind(ref.coords$lon, ref.coords$lat), proj4string = CRS("+init=epsg:4326"))
+  dists <- matrix(data = 0, nrow = length(pts), ncol = length(pts))
+  dists[which(adj.matrix == 1)] <- spDists(pts, longlat = TRUE)[which(adj.matrix == 1)]
+  
   graphObj <- list("graph" = graph,
                    "data_coords" = time.coords.matrix,
                    "correlation" = cor.matrix,
                    "VertexCoords" = ref.coords,
                    "adjacency" = adj.matrix,
-                   "signed_adjacency" = signed.adj)
+                   "signed_adjacency" = signed.adj,
+                   "geodist" = dists)
   
   attr(graphObj, "Xcoords") <- x
   attr(graphObj, "Ycoords") <- y
