@@ -24,25 +24,39 @@
 
 graph2measure <- function(graphObj) {
   
-  # strength
-  if(!is.null(edge_attr(graphObj$graph))){
-    K <- igraph::degree(graphObj$graph, loops = FALSE)
-    B <- betweenness(graphObj$graph, directed = FALSE)
-    strength <- igraph::strength(graphObj$graph)
-  } else {strength <- NA}
+  weighted = attr(graphObj, "weighted")
+  
+  #Degree
+  K <- igraph::degree(graphObj$graph, loops = FALSE)
+  #Betweenness
+  B <- igraph::betweenness(graphObj$graph, directed = FALSE)
+  
+  # Correlation-based strength
+  if(weighted == TRUE){
+    strength.cor <- igraph::strength(graphObj$graph)
+  }else{
+    strength.cor <- NA
+  }
+  # Distance-based strength
+  dists.net <- graph_from_adjacency_matrix(graphObj$geodist, weighted = TRUE, mode = "undirected", diag = FALSE) 
+  strength.dist <- igraph::strength(dists.net)
   
   # area weighted connectivity
   # Calculacion area total:
   sumArea <- sum(cos(graphObj$VertexCoords$lon/(180)*pi))
   # Calculacion Area weighted connectivity per gridbox: 
-  awconnectivity <- as.vector(cos(graphObj$VertexCoords$lon/(180)*pi)%*%graphObj$adjacency) / sumArea
+  awconnectivity <- as.vector(cos(graphObj$VertexCoords$lat/(180)*pi)%*%graphObj$adjacency) / sumArea
   
   out <- list("degree" = K,
               "betweenness" = B,
-              "strength" = strength, 
-              "awconnectivity" = awconnectivity)
+              "awconnectivity" = awconnectivity,
+              "dist_strength" = strength.dist)
+  
+  if(weighted == TRUE){out$cor_strength = strength.cor}
+  
   attr(out, "Xcoords") <- attr(graphObj, "Xcoords")
   attr(out, "Ycoords") <- attr(graphObj, "Ycoords")
   attr(out, "ref.dates") <- attr(graphObj, "ref.dates")
+  attr(out, "weighted") <- attr(graphObj, "weighted")
   return(out)
 }
