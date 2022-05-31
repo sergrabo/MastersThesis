@@ -39,7 +39,11 @@ graph_world_network <- function(graphObj){
   # Signed adjacency matrix
   signed.adj <- graphObj$signed_adjacency
   edges$sign <- mapply(FUN = function(x,y) signed.adj[x,y], edges$from, edges$to)
-
+  
+  # Edge distance
+  dist.matrix <- graphObj$geodist
+  edges$dist <- mapply(FUN = function(x,y) dist.matrix[x,y], edges$from, edges$to)
+  
   # Añadimos a los links la informacion de las coordenadas de cada id
   edges_for_plot <- edges %>%
     inner_join(coords %>% select(id, lon, lat), by = c('from' = 'id')) %>%
@@ -64,7 +68,8 @@ graph_world_network <- function(graphObj){
                                  size = 0.15)
   mapcoords <- coord_fixed(xlim = c(-150, 180), ylim = c(-55, 80))
   palette <- scale_color_manual(values = c("red", "blue"))
-  # Plot
+  
+  # PLOT: ¡¡¡IMPORTANTE!!! Siempre poner el plot lo último para que ggplot pueda plotearlo
   if(weighted == FALSE){
   ggplot(coords) + country_shapes +
     geom_curve(aes(x = x, y = y, xend = xend, yend = yend, color = as.factor(sign)),
@@ -77,4 +82,6 @@ graph_world_network <- function(graphObj){
                data = edges_for_plot, curvature = 0.33,
                alpha = 0.5) +
     mapcoords + maptheme}
+  
+  
 }
