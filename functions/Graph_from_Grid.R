@@ -16,7 +16,7 @@
 #' @title Graph from C4R grid
 #' @description Convert a climate4R grid to an igraph undirected complex network
 #' @param grid Input C4R grid
-#' @param th (Absolute) correlation coefficient threshold to consider a link
+#' @param cor.th (Absolute) correlation coefficient threshold to consider a link
 #' @return 
 #' @author Sergio Gracia
 #' @references 
@@ -24,10 +24,15 @@
 
 Graph_from_Grid <- function(grid,
                             th = 0.8,
+                            dist.th = 10,
                             weighted = FALSE,
                             mask = NULL,
                             subind = NULL,
                             method = c("spearman")) {
+  
+  cor.th <- th
+  
+  
   
   coords <- getCoordinates(grid)
   x <- coords$x
@@ -56,9 +61,9 @@ Graph_from_Grid <- function(grid,
   # Adjacency matrix
   adj.matrix <- cor.matrix %>% abs()
   diag(adj.matrix) <- 0
-  adj.matrix[adj.matrix <= th ] <- 0
+  adj.matrix[adj.matrix <= cor.th ] <- 0
   adj.matrix[is.na(adj.matrix)] <- 0
-  adj.matrix[adj.matrix > th ] <- 1
+  adj.matrix[adj.matrix > cor.th ] <- 1
   
   # Signed adjacency matrix
   signed.adj <- sign(cor.matrix) * adj.matrix
@@ -77,7 +82,7 @@ Graph_from_Grid <- function(grid,
     # Adjacency matrix
     adj.matrix <- cor.matrix %>% abs()
     diag(adj.matrix) <- 0
-    adj.matrix[adj.matrix <= th] <- 0
+    adj.matrix[adj.matrix <= cor.th] <- 0
     adj.matrix[is.na(adj.matrix)] <- 0
     
     # Graph
@@ -98,5 +103,44 @@ Graph_from_Grid <- function(grid,
   attr(graphObj, "Ycoords") <- y
   attr(graphObj, "ref.dates") <- ref.dates
   attr(graphObj, "weightedGraph") <- weighted
+  
+  # Edges computing
+  edges <- get.edgelist(graph) %>% data.frame() %>% setNames(c("from", "to"))
+  
+  if(weighted == TRUE){edges$weight <- E(graph)$weight}
+  edges$sign <- mapply(FUN = function(x,y) signed.adj[x,y], edges$from, edges$to)
+  edges$dist <- mapply(FUN = function(x,y) dists[x,y], edges$from, edges$to)
+  
+  #### Descriptive statistics ####
+  # Number of edges
+  total_edges <- nrow(edges)
+  pos_edges <- sum(edges$sign == 1)
+  neg_edges <- sum(edges$sign == -1)
+  if(total_edges != pos_edges + neg_edges){print("Error: Sum of positive and negative edges differs from total number of edges")}
+  # Mean edge distance
+  total_mean_dist <- mean(edges$dist)
+  pos_mean_dist <- mean(edges$dist[edges$sign == 1])
+  neg_mean_dist <- mean(edges$dist[edges$sign == -1])
+  # Edge distance range
+  total_range_dist <- range(edges$dist)
+  pos_range_dist <- range(edges$dist[edges$sign == 1])
+  neg_range_dist <- range(edges$dist[edges$sign == -1])
+  # Net's clustering coefficient
+  clust_coeff <- transitivity(graph, type = "global")
+  # Net's diameter
+  diameter <- diameter(graph, directed = FALSE)
+  
+  attr(graphObj, "total_edges") <- total_edges
+  attr(graphObj, "pos_edges") <- pos_edges
+  attr(graphObj, "neg_edges") <- neg_edges
+  attr(graphObj, "total_mean_dist") <- total_mean_dist
+  attr(graphObj, "pos_mean_dist") <- pos_mean_dist
+  attr(graphObj, "neg_mean_dist") <- neg_mean_dist
+  attr(graphObj, "total_range_dist") <- total_range_dist
+  attr(graphObj, "pos_range_dist") <- pos_range_dist
+  attr(graphObj, "neg_range_dist") <- neg_range_dist
+  attr(graphObj, "clust_coeff") <- clust_coeff
+  attr(graphObj, "diameter") <- diameter
+  
   return(graphObj)
 }
