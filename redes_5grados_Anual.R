@@ -12,6 +12,8 @@ library(magrittr) # Carga el "pipe operator" %>%
 library(ggplot2)
 library(dplyr)
 library(tidyr)
+library(RColorBrewer)
+library(sp)
 
 # Eliminamos las posibles variables de una sesion anterior
 rm(list = ls())
@@ -98,27 +100,28 @@ graph_world_network(weighted.net)
 
 
 ########## Metricas de redes complejas ##########
+
+# Cargamos funcion graph2measure
+source("scripts/MastersThesis/functions/graph2measure.R")
+# measures.5deg <- graph2measure(unweighted.net)
+measures.5deg <- graph2measure(weighted.net)
+
 # Cargamos función quantity2clim
 source("scripts/MastersThesis/functions/quantity2clim.R")
+clim <- quantity2clim(measures.5deg, ref.grid = ba.5deg.std.anom, ref.mask = mask)
 
-### Red compleja no pesada ###
-source("scripts/MastersThesis/functions/graph2measure.R")
-
-measures.5deg <- graph2measure(unweighted.net)
-
-# Distribucion de grado
-climK <- quantity2clim(measures.5deg$degree, ref.grid = ba.5deg.std.anom, ref.mask = mask, what = "degree")
-
-library(RColorBrewer)
+dev.new()
 display.brewer.all()
 
-spatialPlot(climK, backdrop.theme = "coastline", main = "Distribución de grado", color.theme = "GnBu")
+spatialPlot(clim$degree, backdrop.theme = "coastline", main = "Distribución de grado", color.theme = "YlOrRd")
+spatialPlot(clim$betweenness, backdrop.theme = "coastline", main = "Betweenness", color.theme = "YlGnBu", at = seq(0,10000,1000))
+spatialPlot(clim$dist_strength, backdrop.theme = "coastline", main = "Distance-based strength", color.theme = "PuRd")
+spatialPlot(clim$awconnectivity, backdrop.theme = "coastline", main = "Area Weighted Connectivity", color.theme = "RdPu")
+spatialPlot(clim$cor_strength, backdrop.theme = "coastline", main = "Correlation-based strength", color.theme = "RdPu")#PuBu
+spatialPlot(clim$mean_dist_per_node, backdrop.theme = "coastline", main = "Mean link distance per node", color.theme = "PuRd")
 
-# Betweenness
-climB <- quantity2clim(measures.5deg$betweenness, ref.grid = ba.5deg.std.anom, ref.mask = mask, what = "betweenness")
-
-spatialPlot(climB, backdrop.theme = "coastline", main = "Betweenness", color.theme = "YlOrRd", at =seq(0,10000,1000))
-
+source("scripts/MastersThesis/functions/measure2plot.R")
+p <- measure2plot()
 
 ########## Estudio de clustering en la red ##########
 ceb <- cluster_edge_betweenness(unweighted.net$graph, directed = FALSE)
@@ -130,39 +133,7 @@ com <- ifelse(com %in% com.mask, com, NA)
 
 climcom <- quantity2clim(com, ref.grid = ba.5deg.std.anom, ref.mask = mask, what = "eigenvalues")
 
-library(RColorBrewer)
-
 ngroups <- length(com.mask)
 cols <- colorRampPalette(colors = brewer.pal(11, "Spectral"))
 spatialPlot(climcom, backdrop.theme = "coastline", main = "Communities", col.regions = sample(cols(ngroups+1), ngroups, replace = FALSE))
-
-# ??Calcular distancias??
-library(sp)
-?spDistsN1
-
-#Apaño momentáneo para strength
-coords.2d <- unweighted.net$VertexCoords
-adj.mat <- unweighted.net$adjacency
-x <- SpatialPoints(cbind(coords.2d$lon, coords.2d$lat), proj4string = CRS("+init=epsg:4326"))
-dists <- matrix(data = 0, nrow = length(x), ncol = length(x))
-dists[which(adj.mat == 1)] <- spDists(x, longlat = TRUE)[which(adj.mat == 1)]
-
-# Creamos un grafo pesado seg?n la distancia geogr?fica entre nodos
-dists.net <- graph_from_adjacency_matrix(dists, weighted = TRUE, mode = "undirected", diag = FALSE)
-print_all(dists.net)
-
-S <- strength(dists.net, loops = FALSE)
-climS <- quantity2clim(S, ref.grid = ba.5deg.std.anom, ref.mask = mask, what = "strength")
-
-spatialPlot(climS, backdrop.theme = "coastline", main = "Strength", color.theme = "PuRd")
-
-# Area weighted connectivity
-climAw <- measures.5deg$awconnectivity %>% quantity2clim(ref.grid = ba.5deg.std.anom, ref.mask = mask, what = "awconnectivity")
-spatialPlot(climAw, backdrop.theme = "coastline", main = "Area Weighted Connectivity", color.theme = "PuRd")
-
-# Mean distance per node
-MDN <- S/measures.5deg$degree
-MDN[which(is.nan(MDN))] <- 0
-quantity2clim(MDN, ref.grid = ba.5deg.std.anom, ref.mask = mask, what = "Mean distance per node") %>%
-  spatialPlot(backdrop.theme = "coastline", main = "Mean distance per node", color.theme = "PuRd")
 
