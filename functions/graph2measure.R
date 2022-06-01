@@ -33,7 +33,7 @@ graph2measure <- function(graphObj) {
   
   # area weighted connectivity
   # Calculacion area total:
-  sumArea <- sum(cos(graphObj$VertexCoords$lon/(180)*pi))
+  sumArea <- sum(cos(graphObj$VertexCoords$lat/(180)*pi))
   # Calculacion Area weighted connectivity per gridbox: 
   awconnectivity <- as.vector(cos(graphObj$VertexCoords$lat/(180)*pi)%*%graphObj$adjacency) / sumArea
   
