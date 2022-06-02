@@ -67,21 +67,23 @@ graph_world_network <- function(graphObj){
                                  fill = "#CECECE", color = "#515151",
                                  size = 0.15)
   mapcoords <- coord_fixed(xlim = c(-150, 180), ylim = c(-55, 80))
-  palette <- scale_color_manual(values = c("red", "blue"))
+  
   
   # PLOT: ¡¡¡IMPORTANTE!!! Siempre poner el plot lo último para que ggplot pueda plotearlo
   if(weighted == FALSE){
-  ggplot(coords) + country_shapes +
-    geom_curve(aes(x = x, y = y, xend = xend, yend = yend, color = as.factor(sign)),
-               data = edges_for_plot, curvature = 0.33,
-               alpha = 0.5) +
-    palette + mapcoords + maptheme
+    palette <- scale_color_manual(values = c("red", "blue"))
+    ggplot(coords) + country_shapes +
+      geom_curve(aes(x = x, y = y, xend = xend, yend = yend, color = as.factor(sign), alpha = dist),
+                 data = edges_for_plot, curvature = 0.33) +
+      palette + mapcoords + maptheme
   }else{
-  ggplot(coords) + country_shapes +
-    geom_curve(aes(x = x, y = y, xend = xend, yend = yend, color = weight),
-               data = edges_for_plot, curvature = 0.33,
-               alpha = 0.5) +
-    mapcoords + maptheme}
-  
-  
+    colors.discrete <- brewer.pal(11, "RdYlBu")
+    colors.continuous <- colorRampPalette(colors.discrete)
+    palette <- scale_color_gradientn(colours = colors.continuous(20), guide = guide_colorbar(title = "Correlation coefficient"))
+    edges_for_plot <- edges_for_plot %>% mutate(signed_weight = weight*sign)
+    ggplot(coords) + country_shapes +
+      geom_curve(aes(x = x, y = y, xend = xend, yend = yend, color = signed_weight, alpha = dist),
+                 data = edges_for_plot, curvature = 0.33) +
+     palette + mapcoords + maptheme
+  }
 }
