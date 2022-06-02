@@ -23,16 +23,12 @@
 #' 
 
 Graph_from_Grid <- function(grid,
-                            th = 0.8,
-                            dist.th = 10,
+                            cor.th = 0.8,
+                            dist.th = 1000,
                             weighted = FALSE,
                             mask = NULL,
                             subind = NULL,
                             method = c("spearman")) {
-  
-  cor.th <- th
-  
-  
   
   coords <- getCoordinates(grid)
   x <- coords$x
@@ -55,14 +51,17 @@ Graph_from_Grid <- function(grid,
     time.coords.matrix <- time.coords.matrix[,mask]
   }
   
+  # Compute distance between all coordinates
+  pts <- SpatialPoints(cbind(ref.coords$lon, ref.coords$lat), proj4string = CRS("+init=epsg:4326"))
+  all_dists <- spDists(pts, longlat = TRUE)
   # Correlation matrix
   cor.matrix <- cor(time.coords.matrix, method = method) 
   
   # Adjacency matrix
   adj.matrix <- cor.matrix %>% abs()
   diag(adj.matrix) <- 0
-  adj.matrix[adj.matrix <= cor.th ] <- 0
   adj.matrix[is.na(adj.matrix)] <- 0
+  adj.matrix[adj.matrix <= cor.th | all_dists <= dist.th] <- 0
   adj.matrix[adj.matrix > cor.th ] <- 1
   
   # Signed adjacency matrix
@@ -70,7 +69,6 @@ Graph_from_Grid <- function(grid,
   signed.adj[is.na(signed.adj)] <- 0
   
   # Geographical distance matrix
-  pts <- SpatialPoints(cbind(ref.coords$lon, ref.coords$lat), proj4string = CRS("+init=epsg:4326"))
   dists <- matrix(data = 0, nrow = length(pts), ncol = length(pts))
   dists[which(adj.matrix > 0)] <- spDists(pts, longlat = TRUE)[which(adj.matrix > 0)]
   
@@ -82,8 +80,8 @@ Graph_from_Grid <- function(grid,
     # Adjacency matrix
     adj.matrix <- cor.matrix %>% abs()
     diag(adj.matrix) <- 0
-    adj.matrix[adj.matrix <= cor.th] <- 0
     adj.matrix[is.na(adj.matrix)] <- 0
+    adj.matrix[adj.matrix <= cor.th | all_dists <= dist.th] <- 0
     
     # Graph
     graph <- graph_from_adjacency_matrix(adj.matrix, weighted = TRUE, mode = "undirected")

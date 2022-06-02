@@ -26,7 +26,8 @@ setwd("C:/Users/sergr/Dropbox/TFM_Sergio_Gracia")
 
 # Parametros del modelo #
 
-th <- 0.65 # Threshold
+cor.th <- 0.65 # Correlation Threshold
+dist.th <- 1000 # Distance threshold (km)
 res <- 5 / 0.25 # Resolucion
 
 # # Cargamos los datos pre-adaptados
@@ -67,8 +68,8 @@ load("./Rdata/mask.Rdata", verbose = TRUE)
 ########## Calculo de las redes complejas ##########
 source("scripts/MastersThesis/functions/Graph_from_Grid.R")
 
-unweighted.net <- Graph_from_Grid(ba.5deg.std.anom, th = th, mask = mask)
-weighted.net <- Graph_from_Grid(ba.5deg.std.anom, th = th, mask = mask, weighted = TRUE)
+unweighted.net <- Graph_from_Grid(ba.5deg.std.anom, cor.th = cor.th, dist.th = dist.th, mask = mask)
+weighted.net <- Graph_from_Grid(ba.5deg.std.anom, cor.th = cor.th, dist.th = dist.th, mask = mask, weighted = TRUE)
 
 ########## Representacion de redes complejas ##########
 
@@ -113,12 +114,18 @@ clim <- quantity2clim(measures.5deg, ref.grid = ba.5deg.std.anom, ref.mask = mas
 dev.new()
 display.brewer.all()
 
-spatialPlot(clim$degree, backdrop.theme = "coastline", main = "Distribución de grado", color.theme = "YlOrRd")
-spatialPlot(clim$betweenness, backdrop.theme = "coastline", main = "Betweenness", color.theme = "YlGnBu", at = seq(0,10000,1000))
-spatialPlot(clim$dist_strength, backdrop.theme = "coastline", main = "Distance-based strength", color.theme = "PuRd")
-spatialPlot(clim$awconnectivity, backdrop.theme = "coastline", main = "Area Weighted Connectivity", color.theme = "RdPu")
-spatialPlot(clim$cor_strength, backdrop.theme = "coastline", main = "Correlation-based strength", color.theme = "RdPu")#PuBu
-spatialPlot(clim$mean_dist_per_node, backdrop.theme = "coastline", main = "Mean link distance per node", color.theme = "PuRd")
+a = spatialPlot(clim$degree, backdrop.theme = "coastline", main = "Degree distribution", color.theme = "YlOrRd")
+b = spatialPlot(clim$betweenness, backdrop.theme = "coastline", main = "Betweenness", color.theme = "YlGnBu", at = seq(0,10000,1000))
+c = spatialPlot(clim$dist_strength, backdrop.theme = "coastline", main = "Distance-based strength", color.theme = "PuRd")
+d = spatialPlot(clim$mean_dist_per_node, backdrop.theme = "coastline", main = "Mean link distance per node", color.theme = "PuRd")
+e = spatialPlot(clim$cor_strength, backdrop.theme = "coastline", main = "Correlation-based strength", color.theme = "PuBu")
+f = spatialPlot(clim$awconnectivity, backdrop.theme = "coastline", main = "Area Weighted Connectivity", color.theme = "RdPu")
+lista_de_plots = list(a,b,c,d,e,f)
+
+library(gridExtra)
+do.call(grid.arrange, c(lista_de_plots, ncol = 2,nrow = 3, heights =c(1,1,1,1,1,1), top = "title"))
+x11()
+grid.arrange(a,b,c,d,e,f)
 
 source("scripts/MastersThesis/functions/measure2plot.R")
 p <- measure2plot()
@@ -136,4 +143,3 @@ climcom <- quantity2clim(com, ref.grid = ba.5deg.std.anom, ref.mask = mask, what
 ngroups <- length(com.mask)
 cols <- colorRampPalette(colors = brewer.pal(11, "Spectral"))
 spatialPlot(climcom, backdrop.theme = "coastline", main = "Communities", col.regions = sample(cols(ngroups+1), ngroups, replace = FALSE))
-
