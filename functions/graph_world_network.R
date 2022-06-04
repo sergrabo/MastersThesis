@@ -77,13 +77,24 @@ graph_world_network <- function(graphObj){
                  data = edges_for_plot, curvature = 0.33) +
       palette + mapcoords + maptheme
   }else{
-    colors.discrete <- brewer.pal(11, "RdYlBu")
+    colors.discrete <- brewer.pal(9, "Blues")
     colors.continuous <- colorRampPalette(colors.discrete)
-    palette <- scale_color_gradientn(colours = colors.continuous(20), guide = guide_colorbar(title = "Correlation coefficient"))
+    palette1 <- scale_color_gradientn(colours = colors.continuous(20), guide = guide_colorbar(title = "Correlation coefficient"))
+    colors.discrete <- rev(brewer.pal(9, "Reds"))
+    colors.continuous <- colorRampPalette(colors.discrete)
+    palette2 <- scale_color_gradientn(colours = colors.continuous(20), guide = guide_colorbar(title = "Correlation coefficient"))
+    
     edges_for_plot <- edges_for_plot %>% mutate(signed_weight = weight*sign)
-    ggplot(coords) + country_shapes +
+    
+    p1 <- ggplot(coords) + country_shapes +
       geom_curve(aes(x = x, y = y, xend = xend, yend = yend, color = signed_weight, alpha = dist),
-                 data = edges_for_plot, curvature = 0.33) +
-     palette + mapcoords + maptheme
+                 data = edges_for_plot[edges_for_plot$sign == 1,], curvature = 0.33) +
+      palette1 + mapcoords + maptheme
+    
+    p2 <- ggplot(coords) + country_shapes +
+      geom_curve(aes(x = x, y = y, xend = xend, yend = yend, color = signed_weight, alpha = dist),
+                 data = edges_for_plot[edges_for_plot$sign == -1,], curvature = 0.33) +
+      palette2 + mapcoords + maptheme
+    grid.arrange(p1,p2, ncol= 1)
   }
 }
