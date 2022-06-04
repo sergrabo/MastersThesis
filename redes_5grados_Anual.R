@@ -1,5 +1,8 @@
 ########## Inicializacion del script ##########
 
+# Eliminamos las posibles variables de una sesion anterior
+rm(list = ls())
+
 # Paquetes de climate4R <https://github.com/SantanderMetGroup/climate4R>
 library(transformeR)
 library(visualizeR)
@@ -14,9 +17,9 @@ library(dplyr)
 library(tidyr)
 library(RColorBrewer)
 library(sp)
+library(gridExtra)
 
-# Eliminamos las posibles variables de una sesion anterior
-rm(list = ls())
+
 
 # Directorio de trabajo
 setwd("C:/Users/sergr/Dropbox/TFM_Sergio_Gracia")
@@ -122,8 +125,8 @@ e = spatialPlot(clim$cor_strength, backdrop.theme = "coastline", main = "Correla
 f = spatialPlot(clim$awconnectivity, backdrop.theme = "coastline", main = "Area Weighted Connectivity", color.theme = "RdPu")
 lista_de_plots = list(a,b,c,d,e,f)
 
-library(gridExtra)
-do.call(grid.arrange, c(lista_de_plots, ncol = 2,nrow = 3, heights =c(1,1,1,1,1,1), top = "title"))
+
+# do.call(grid.arrange, c(lista_de_plots, ncol = 2,nrow = 3, heights =c(1,1,1,1,1,1), top = "title"))
 x11()
 grid.arrange(a,b,c,d,e,f)
 
@@ -131,15 +134,19 @@ source("scripts/MastersThesis/functions/measure2plot.R")
 p <- measure2plot()
 
 ########## Estudio de clustering en la red ##########
-ceb <- cluster_edge_betweenness(unweighted.net$graph, directed = FALSE)
+# ceb <- cluster_edge_betweenness(unweighted.net$graph, directed = FALSE)
+# 
+# com.mask <- as.integer(dimnames(sizes(ceb)[which(sizes(ceb)>=4)])$`Community sizes`)
+# com <- membership(ceb)
+# 
+# com <- ifelse(com %in% com.mask, com, NA)
+# 
+# climcom <- quantity2clim(com, ref.grid = ba.5deg.std.anom, ref.mask = mask, what = "eigenvalues")
+# 
+# ngroups <- length(com.mask)
+# cols <- colorRampPalette(colors = brewer.pal(11, "Spectral"))
+# spatialPlot(climcom, backdrop.theme = "coastline", main = "Communities", col.regions = sample(cols(ngroups+1), ngroups, replace = FALSE))
 
-com.mask <- as.integer(dimnames(sizes(ceb)[which(sizes(ceb)>=4)])$`Community sizes`)
-com <- membership(ceb)
 
-com <- ifelse(com %in% com.mask, com, NA)
-
-climcom <- quantity2clim(com, ref.grid = ba.5deg.std.anom, ref.mask = mask, what = "eigenvalues")
-
-ngroups <- length(com.mask)
-cols <- colorRampPalette(colors = brewer.pal(11, "Spectral"))
-spatialPlot(climcom, backdrop.theme = "coastline", main = "Communities", col.regions = sample(cols(ngroups+1), ngroups, replace = FALSE))
+source("scripts/MastersThesis/functions/compute_communities.R")
+compute_communities(unweighted.net, ref.grid = ba.5deg.std.anom, ref.mask = mask, th = 7)
