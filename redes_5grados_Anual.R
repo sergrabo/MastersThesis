@@ -19,11 +19,12 @@ library(RColorBrewer)
 library(sp)
 library(gridExtra)
 
-
-
 # Directorio de trabajo
 setwd("C:/Users/sergr/Dropbox/TFM_Sergio_Gracia")
 #setwd("/home/juaco/Dropbox/TFM_Sergio_Gracia")
+
+# Cargar funciones definidas por mi
+sapply(list.files("./scripts/MastersThesis/functions/", full.names = TRUE), "source", .GlobalEnv)
 
 ########## Carga y preparacion de los datos ##########
 
@@ -69,17 +70,10 @@ load("./Rdata/ba5degAnom.Rdata", verbose = TRUE)
 load("./Rdata/mask.Rdata", verbose = TRUE)
 
 ########## Calculo de las redes complejas ##########
-source("scripts/MastersThesis/functions/Graph_from_Grid.R")
-
 unweighted.net <- Graph_from_Grid(ba.5deg.std.anom, cor.th = cor.th, dist.th = dist.th, mask = mask)
 weighted.net <- Graph_from_Grid(ba.5deg.std.anom, cor.th = cor.th, dist.th = dist.th, mask = mask, weighted = TRUE)
 
 ########## Representacion de redes complejas ##########
-
-
-#https://www.r-bloggers.com/2018/05/three-ways-of-visualizing-a-graph-on-a-map/
-
-source("scripts/MastersThesis/functions/graph_world_network.R")
 
 ### Red compleja no pesada ###
 graph_world_network(unweighted.net)
@@ -88,30 +82,13 @@ graph_world_network(unweighted.net)
 graph_world_network(weighted.net)
 
 
-### Mapa en polares ###
-
-# # remotes::install_github("EarthSystemDiagnostics/grfxtools")
-# library(grfxtools)
-# library(rgeos)
-
-# Plot
-# curve_data <- geom_curve(aes(x = x, y = y, xend = xend, yend = yend),
-#                          data = edges_for_plot, curvature = 0.33,
-#                          alpha = 0.5, col = "blue")
-# 
-# ggpolar(pole = "N", max.lat = 90, min.lat = 0, data.layer = curve_data)
-  
-
-
 ########## Metricas de redes complejas ##########
 
 # Cargamos funcion graph2measure
-source("scripts/MastersThesis/functions/graph2measure.R")
 # measures.5deg <- graph2measure(unweighted.net)
 measures.5deg <- graph2measure(weighted.net)
 
 # Cargamos función quantity2clim
-source("scripts/MastersThesis/functions/quantity2clim.R")
 clim <- quantity2clim(measures.5deg, ref.grid = ba.5deg.std.anom, ref.mask = mask)
 
 dev.new()
@@ -130,7 +107,7 @@ lista_de_plots = list(a,b,c,d,e,f)
 x11()
 grid.arrange(a,b,c,d,e,f)
 
-source("scripts/MastersThesis/functions/measure2plot.R")
+# Plot measures
 p <- measure2plot()
 
 ########## Estudio de clustering en la red ##########
@@ -148,5 +125,4 @@ p <- measure2plot()
 # spatialPlot(climcom, backdrop.theme = "coastline", main = "Communities", col.regions = sample(cols(ngroups+1), ngroups, replace = FALSE))
 
 
-source("scripts/MastersThesis/functions/compute_communities.R")
 compute_communities(unweighted.net, ref.grid = ba.5deg.std.anom, ref.mask = mask, th = 7)
