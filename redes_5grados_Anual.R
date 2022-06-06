@@ -88,45 +88,10 @@ plot_dist_corr(weighted.net)
 
 ########## Metricas de redes complejas ##########
 
-# Cargamos funcion graph2measure
-# measures.5deg <- graph2measure(unweighted.net)
-measures.5deg <- graph2measure(weighted.net)
-
-# Cargamos función quantity2clim
-clim <- quantity2clim(measures.5deg, ref.grid = ba.5deg.std.anom, ref.mask = mask)
-
-dev.new()
-display.brewer.all()
-
-a = spatialPlot(clim$degree, backdrop.theme = "coastline", main = "Degree distribution", color.theme = "YlOrRd")
-b = spatialPlot(clim$betweenness, backdrop.theme = "coastline", main = "Betweenness", color.theme = "YlGnBu", at = seq(0,10000,1000))
-c = spatialPlot(clim$dist_strength, backdrop.theme = "coastline", main = "Distance-based strength", color.theme = "PuRd")
-d = spatialPlot(clim$mean_dist_per_node, backdrop.theme = "coastline", main = "Mean link distance per node", color.theme = "PuRd")
-e = spatialPlot(clim$cor_strength, backdrop.theme = "coastline", main = "Correlation-based strength", color.theme = "PuBu")
-f = spatialPlot(clim$awconnectivity, backdrop.theme = "coastline", main = "Area Weighted Connectivity", color.theme = "RdPu")
-lista_de_plots = list(a,b,c,d,e,f)
-
-
-# do.call(grid.arrange, c(lista_de_plots, ncol = 2,nrow = 3, heights =c(1,1,1,1,1,1), top = "title"))
-x11()
-grid.arrange(a,b,c,d,e,f)
 
 # Plot measures
-p <- measure2plot()
+plot_measures(weighted.net)
 
 ########## Estudio de clustering en la red ##########
-# ceb <- cluster_edge_betweenness(unweighted.net$graph, directed = FALSE)
-# 
-# com.mask <- as.integer(dimnames(sizes(ceb)[which(sizes(ceb)>=4)])$`Community sizes`)
-# com <- membership(ceb)
-# 
-# com <- ifelse(com %in% com.mask, com, NA)
-# 
-# climcom <- quantity2clim(com, ref.grid = ba.5deg.std.anom, ref.mask = mask, what = "eigenvalues")
-# 
-# ngroups <- length(com.mask)
-# cols <- colorRampPalette(colors = brewer.pal(11, "Spectral"))
-# spatialPlot(climcom, backdrop.theme = "coastline", main = "Communities", col.regions = sample(cols(ngroups+1), ngroups, replace = FALSE))
-
 
 compute_communities(unweighted.net, ref.grid = ba.5deg.std.anom, ref.mask = mask, th = 7)
