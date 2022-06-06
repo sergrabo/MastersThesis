@@ -82,6 +82,10 @@ graph_world_network(unweighted.net)
 graph_world_network(weighted.net)
 
 
+# Plot distance vs correlation
+plot_dist_corr(weighted.net)
+
+
 ########## Metricas de redes complejas ##########
 
 # Cargamos funcion graph2measure
