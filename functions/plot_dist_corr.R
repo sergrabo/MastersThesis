@@ -22,7 +22,7 @@
 #' 
 #' 
 
-plot_dist_corr <- function(graphObj){
+plot_dist_corr <- function(graphObj, mute = FALSE){
   
   graph <- graphObj$graph
   weighted = attr(graphObj, "weighted")
@@ -44,9 +44,9 @@ plot_dist_corr <- function(graphObj){
   palette <- scale_color_manual(values = c("red", "blue"))
   
   # Plot
-  x11()
+  if(mute == FALSE){x11()}
   ggplot() + 
     geom_point(aes(weight, dist, col = as.factor(sign)), data = edges) +
     palette +
-    xlim(0,1)
+    xlim(0,1) + ylim(0, 20000)
 }

@@ -22,9 +22,10 @@
 #' 
 #' 
 
-plot_measures <- function(graphObj) {
+plot_measures <- function(graphObj, mute = FALSE) {
   
-  
+  # Quitar la antártida
+  ylim = c(-75,90)
   
   # Compute complex network's centrality measures
   measures.5deg <- graph2measure(graphObj)
@@ -36,14 +37,14 @@ plot_measures <- function(graphObj) {
     stop("Cannot plot correlation-based strength since edges have no weight", call. = FALSE)
   }
   
-  p1 = spatialPlot(clim$degree, backdrop.theme = "coastline", main = "Degree distribution", color.theme = "YlOrRd")
-  p2 = spatialPlot(clim$betweenness, backdrop.theme = "coastline", main = "Betweenness", color.theme = "YlGnBu", at = seq(0,10000,1000))
-  p3 = spatialPlot(clim$dist_strength, backdrop.theme = "coastline", main = "Distance-based strength", color.theme = "PuRd")
-  p4 = spatialPlot(clim$mean_dist_per_node, backdrop.theme = "coastline", main = "Mean link distance per node", color.theme = "PuRd")
-  p5 = spatialPlot(clim$cor_strength, backdrop.theme = "coastline", main = "Correlation-based strength", color.theme = "PuBu")
-  p6 = spatialPlot(clim$awconnectivity, backdrop.theme = "coastline", main = "Area Weighted Connectivity", color.theme = "RdPu")
+  p1 = spatialPlot(clim$degree, backdrop.theme = "coastline", main = "Degree distribution", color.theme = "YlOrRd", ylim=ylim)
+  p2 = spatialPlot(clim$betweenness, backdrop.theme = "coastline", main = "Betweenness", color.theme = "YlGnBu",ylim=ylim)
+  p3 = spatialPlot(clim$dist_strength, backdrop.theme = "coastline", main = "Distance-based strength", color.theme = "PuRd",ylim=ylim)
+  p4 = spatialPlot(clim$mean_dist_per_node, backdrop.theme = "coastline", main = "Mean link distance per node", color.theme = "PuRd",ylim=ylim)
+  p5 = spatialPlot(clim$cor_strength, backdrop.theme = "coastline", main = "Correlation-based strength", color.theme = "PuBu",ylim=ylim)
+  p6 = spatialPlot(clim$awconnectivity, backdrop.theme = "coastline", main = "Area Weighted Connectivity", color.theme = "RdPu", ylim = ylim)
 
-  x11()
+  if(mute == FALSE){x11()}
   grid.arrange(p1, p2, p3, p4, p5, p6, nrow = 3, ncol = 2)
   
 }

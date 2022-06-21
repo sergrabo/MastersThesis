@@ -26,12 +26,14 @@
 #' 
 
 
-graph_world_network <- function(graphObj){
+graph_world_network <- function(graphObj, mute = FALSE){
   graph <- graphObj$graph
   coords <- graphObj$VertexCoords
   weighted = attr(graphObj, "weighted")
+  
+  alpha <- 0.25
   # Abrimos ventana para el plot
-  x11()
+  if(mute == FALSE){x11()}
   # Guardamos todos los links de la red en formato "from-to" indicando de un id a otro
   edges <- get.edgelist(graph) %>% data.frame() %>% setNames(c("from", "to"))
   if(weighted == TRUE){edges$weight <- E(graph)$weight}
@@ -73,8 +75,8 @@ graph_world_network <- function(graphObj){
   if(weighted == FALSE){
     palette <- scale_color_manual(values = c("red", "blue"))
     ggplot(coords) + country_shapes +
-      geom_curve(aes(x = x, y = y, xend = xend, yend = yend, color = as.factor(sign), alpha = dist),
-                 data = edges_for_plot, curvature = 0.33) +
+      geom_curve(aes(x = x, y = y, xend = xend, yend = yend, color = as.factor(sign)),
+                 data = edges_for_plot, curvature = 0.33, alpha = alpha) +
       palette + mapcoords + maptheme
   }else{
     colors.discrete <- brewer.pal(9, "Blues")
@@ -87,13 +89,13 @@ graph_world_network <- function(graphObj){
     edges_for_plot <- edges_for_plot %>% mutate(signed_weight = weight*sign)
     
     p1 <- ggplot(coords) + country_shapes +
-      geom_curve(aes(x = x, y = y, xend = xend, yend = yend, color = signed_weight, alpha = dist),
-                 data = edges_for_plot[edges_for_plot$sign == 1,], curvature = 0.33) +
+      geom_curve(aes(x = x, y = y, xend = xend, yend = yend, color = signed_weight),
+                 data = edges_for_plot[edges_for_plot$sign == 1,], curvature = 0.33, alpha = alpha) +
       palette1 + mapcoords + maptheme
     
     p2 <- ggplot(coords) + country_shapes +
-      geom_curve(aes(x = x, y = y, xend = xend, yend = yend, color = signed_weight, alpha = dist),
-                 data = edges_for_plot[edges_for_plot$sign == -1,], curvature = 0.33) +
+      geom_curve(aes(x = x, y = y, xend = xend, yend = yend, color = signed_weight),
+                 data = edges_for_plot[edges_for_plot$sign == -1,], curvature = 0.33, alpha = alpha) +
       palette2 + mapcoords + maptheme
     grid.arrange(p1,p2, ncol= 1)
   }
