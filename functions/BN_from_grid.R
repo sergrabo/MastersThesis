@@ -34,7 +34,7 @@ BN_from_grid <- function(grid, mask){
   # Hacemos el logaritmo porque los datos no son anomalías
   time.coords.matrix <- array3Dto2Dmat(grid$Data)[,mask] %>% log1p()
   
-  data = time.coords.matrix %>% data.frame() 
+  data <- time.coords.matrix %>% data.frame() 
   
   start <- Sys.time()
   BN <-  hc(data, score = "bic-g")

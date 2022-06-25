@@ -34,7 +34,7 @@ BN_from_grid_anom <- function(grid, mask){
   # Datos tal cual porque son anomalías
   time.coords.matrix <- array3Dto2Dmat(grid$Data)[,mask]
   
-  data = time.coords.matrix %>% data.frame() 
+  data <- time.coords.matrix %>% data.frame() 
   
   start <- Sys.time()
   BN <-  hc(data, score = "bic-g")
