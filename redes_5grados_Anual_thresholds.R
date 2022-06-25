@@ -53,7 +53,7 @@ for(i in 1:length(ths)){
   atts.unwnet <- attributes(unwnet[[i]])[-(1:5)] # Not necessary for weighted nets since only "weighted" attribute changes
   for(j in 1:length(atts.unwnet)){
     if(i == 1){ #Initialize
-      atts[[j]] <- c( atts.unwnet[[j]])
+      atts[[j]] <- c(atts.unwnet[[j]])
     }else{ #add
       atts[[j]] <- c(atts[[j]], atts.unwnet[[j]])
     }
@@ -89,31 +89,82 @@ for(th in ths){
 
 
 # Plot clustering coefficient & diameter
-plot(atts$thresholds, atts$clust_coeff, col = "green", pch = 16, ylim=c(-0.05,1), type = "b")
-points(atts$thresholds, atts$diam/max(atts$diam), col = "orange", pch = 16, type = "b")
-text(atts$thresholds, -0.05, atts$total_edges, col= "blue", cex = 0.7)
-points(ths, rand.clust_coeff, col = "darkgreen", pch = 16, type = "b")
-points(ths, rand.diam/max(rand.diam), col = "red", pch = 16, type = "b")
+plot(atts$thresholds, atts$clust_coeff, col = "darkolivegreen2", pch = 16, ylim=c(-0.05,1), type = "b", lwd = 2)
+points(atts$thresholds, atts$diam/max(atts$diam), col = "darkorange1", pch = 16, type = "b", lwd = 2)
+text(atts$thresholds, -0.05, atts$total_edges, col= "blue", cex = 0.7, lwd = 2)
+points(ths, rand.clust_coeff, col = "#85B13B", pch = 16, type = "b", lwd = 2)
+points(ths, rand.diam/max(rand.diam), col = "darkorange3", pch = 16, type = "b", lwd = 2)
 
 
-# Plot number of edges
-plot(atts$thresholds, atts$total_edges, col = "black", pch = 16)
-lines(atts$thresholds, atts$total_edges, col = "black")
-points(atts$thresholds, atts$pos_edges, col = "blue", pch = 16)
-lines(atts$thresholds, atts$pos_edges, col = "blue")
-points(atts$thresholds, atts$neg_edges, col = "red", pch = 16)
-lines(atts$thresholds, atts$neg_edges, col = "red")
+## add extra space to right margin of plot within frame
+par(mar=c(5, 4, 4, 6) + 0.1)
+## Plot first set of data and draw its axis
+plot(ths, atts$clust_coeff, axes = FALSE, col = "darkolivegreen2", xlab = "", ylab = "", ylim = c(-0.05,1),
+     pch = 16, type = "b", lwd = 2)
+points(ths, rand.clust_coeff, col = "#85B13B", pch = 16, type = "b", lwd = 2)
+text(ths, -0.05, atts$total_edges, col= "blue", cex = 0.8, lwd = 2)
+axis(2, at = seq(0, 1, by = 0.1), ylim = c(0,1), col="black", las = 1)  ## las=1 makes horizontal labels
+mtext("Clustering coefficient", side = 2, line = 2.5)
+box()
+
+## Allow a second plot on the same graph
+par(new=TRUE)
+
+## Plot the second plot and put axis scale on right
+plot(ths, atts$diam, axes = FALSE, col = "darkorange1", xlab = "", ylab = "", ylim = c(-0.05,max(atts$diam)),
+     pch = 16, type = "b", lwd = 2)
+points(ths, rand.diam, col = "darkorange3", pch = 16, type = "b", lwd = 2)
+## a little farther out (line=4) to make room for labels
+mtext("Diameter", side = 4, col = "red", line = 4) 
+axis(4, at = 0:max(atts$diam), ylim = c(0,max(atts$diam)), col = "red", col.axis = "red", las = 1)
+
+## Draw the time axis
+axis(1, ths)
+mtext("Thresholds",side=1,col="black",line=2.5)  
+
+## Add Legend
+legend("topright",
+       legend = c("CN Clustering Coefficient",
+                              "RN Clustering Coefficient",
+                              "CN Diameter",
+                              "RN Diameter"),
+       text.col = c("darkolivegreen1",
+                    "#85B13B",
+                    "darkorange1",
+                    "darkorange3"),
+       pch = c(16, 16, 16, 16),
+       lty = c(1, 1, 1, 1),
+       col = c("darkolivegreen1",
+               "#85B13B",
+               "darkorange1",
+               "darkorange3"))
+
 
 # Plot mean edge distance
-plot(atts$thresholds, atts$total_mean_dist, col = "black", pch = 16, ylim = c(0, 10000))
-lines(atts$thresholds, atts$total_mean_dist, col = "black")
-points(atts$thresholds, atts$pos_mean_dist, col = "blue", pch = 16)
-lines(atts$thresholds, atts$pos_mean_dist, col = "blue")
-points(atts$thresholds, atts$neg_mean_dist, col = "red", pch = 16)
-lines(atts$thresholds, atts$neg_mean_dist, col = "red")
-text(atts$thresholds, 0, atts$total_edges, col= "blue", cex = 0.7)
-
-
+par(mar=c(5, 6, 4, 2) + 0.1)
+plot(ths, atts$total_mean_dist, col = "black", pch = 16, type = "b",
+     ylim = c(0, 10000), xlab = "", ylab = "", axes = FALSE)
+points(atts$thresholds, atts$pos_mean_dist, col = "blue", pch = 16, type = "b")
+points(atts$thresholds, atts$neg_mean_dist, col = "red", pch = 16, type = "b")
+text(ths, -0.05, atts$total_edges, col= "blue", cex = 0.8, lwd = 2)
+box()
+axis(1, ths)
+mtext("Thresholds",side=1,col="black",line=2.5) 
+axis(2, ylim = c(0,10000), col="black", las = 1)
+mtext("Mean edge distance", side = 2, line = 4)
+## Add Legend
+legend(x = 0.15, y = 4000,
+       legend = c("All edges",
+                  "Positively correlated edges",
+                  "Negatively correlated edges"),
+       text.col = c("black",
+                    "blue",
+                    "red"),
+       pch = c(16, 16, 16),
+       lty = c(1, 1, 1),
+       col = c("black",
+               "blue",
+               "red"))
 
 # Plot communities
 l <- lapply(comms, FUN = plot_communities, ref.grid = ba.5deg.std.anom, ref.mask = mask, mute = TRUE)
