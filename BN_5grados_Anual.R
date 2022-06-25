@@ -36,21 +36,20 @@ load("./Rdata/mask.Rdata", verbose = TRUE)
 
 #### Area quemada original ####
 # Construccion de la red
-# load("./Rdata/ba_5deg.Rdata", verbose = TRUE)
-# BNobj <- BN_from_grid(grid = ba.5deg, mask = mask)
-# save(BNobj, file = "./Rdata/BNobj.Rdata")
+load("./Rdata/ba_5deg.Rdata", verbose = TRUE)
+BNobj <- BN_from_grid(grid = ba.5deg, mask = mask)
+save(BNobj, file = "./Rdata/BNobj.Rdata")
 
 # Carga de la red preconstruida
 load("./Rdata/BNobj.Rdata", verbose = TRUE)
 
-BN.igraph <- igraph.from.graphNEL(as.graphNEL(BNobj$BN))
-
 #### Anomalias de area quemada ####
 # Construccion de la red
-# BNobj_anom <- BN_from_grid_anom(grid = ba.5deg.std.anom, mask = mask)
-# save(BNobj_anom, file = "./Rdata/BNobj_anom.Rdata")
+BNobj_anom <- BN_from_grid_anom(grid = ba.5deg.std.anom, mask = mask)
+save(BNobj_anom, file = "./Rdata/BNobj_anom.Rdata")
 
 # Carga de la red preconstruida
 load("./Rdata/BNobj_anom.Rdata", verbose = TRUE)
 
-BN_anom.igraph <- igraph.from.graphNEL(as.graphNEL(BN_anom)) 
+graph_world_BN(BNobj)
+graph_world_BN(BNobj_anom)
