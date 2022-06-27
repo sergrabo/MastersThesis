@@ -63,7 +63,8 @@ res <- 5 / 0.25 # Resolucion
 # # Aplicamos una capa para filtrar segun el area que puede quemarse (fraction of burnable area)
 # fba.clim <- climatology(fba.5deg) # %>% redim(drop = TRUE) -> No necesario en este caso
 # fba.vec <- array3Dto2Dmat(fba.clim$Data)[1,]
-# mask <- which(fba.vec > 0.1)
+# time.coords.matrix <- array3Dto2Dmat(ba.5deg.std.anom$Data)
+# mask <- which(apply(time.coords.matrix, MARGIN = 2, FUN = mean) != 0 & fba.vec > 0.1)
 
 # Cargamos los datos ya calculados, para evitar problemas de memoria
 load("./Rdata/ba5degAnom.Rdata", verbose = TRUE)
