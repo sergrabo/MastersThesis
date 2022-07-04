@@ -30,7 +30,7 @@ sapply(list.files("./scripts/MastersThesis/functions/", full.names = TRUE), "sou
 
 # Parametros del modelo #
 
-cor.th <- 0.65 # Correlation Threshold
+cor.th <- 0.7 # Correlation Threshold
 dist.th <- 1000 # Distance threshold (km)
 res <- 5 / 0.25 # Resolucion
 
@@ -54,7 +54,8 @@ res <- 5 / 0.25 # Resolucion
 # 
 # # Calculamos anomalias estandarizadas para que no influya la "magnitud" del area quemada en el caclulo de correlaciones
 # ba.5deg.std.anom <- scaleGrid(ba.5deg, spatial.frame = "gridbox") %>% redim(drop = TRUE)
-# 
+# ba.5deg.std.anom.standarize <- scaleGrid(ba.5deg, spatial.frame = "gridbox", type = "standardize") %>% redim(drop = TRUE)
+
 # # Funciones para dibujar mapas
 # spatialPlot(climatology(ba.5deg), backdrop.theme = "coastline")
 # spatialPlot(climatology(ba.5deg.std.anom), backdrop.theme = "coastline")
