@@ -30,6 +30,7 @@ graph_world_network <- function(graphObj, mute = FALSE){
   graph <- graphObj$graph
   coords <- graphObj$VertexCoords
   weighted = attr(graphObj, "weighted")
+  th = attr(graphObj, "threshold")
   
   alpha <- 0.25
   # Abrimos ventana para el plot
@@ -57,32 +58,39 @@ graph_world_network <- function(graphObj, mute = FALSE){
   maptheme <- theme(panel.grid = element_blank()) +
     theme(axis.text = element_blank()) +
     theme(axis.ticks = element_blank()) +
-    theme(axis.title = element_blank()) +
+    theme(axis.title = element_blank()) + 
+    theme(plot.title = element_text(size = 20, hjust = 0.5)) +
     theme(legend.position = "bottom") +
+    theme(legend.box.background  = element_rect(colour = "black", size = 1)) +
     theme(panel.grid = element_blank()) +
-    theme(panel.background = element_rect(fill = "#596673")) +
-    theme(plot.margin = unit(c(0, 0, 0.5, 0), 'cm'))
+    theme(panel.background = element_rect(fill = "#d2edfa")) +
+    theme(plot.margin = unit(c(1, 0, 0.5, 0), 'cm'))
   
   # Background del mapamundi
   country_shapes <- geom_polygon(aes(x = long, y = lat, group = group),
                                  data = map_data('world'),
-                                 fill = "#CECECE", color = "#515151",
+                                 fill = "#c4a174", color = "#515151",
                                  size = 0.15)
   mapcoords <- coord_fixed(xlim = c(-150, 180), ylim = c(-55, 80))
   
+  title <- ggtitle(paste0("Spatial Network for th = ", th))
+  legend <- labs(color = "Correlation sign")
   
   # PLOT: ¡¡¡IMPORTANTE!!! Siempre poner el plot lo último para que ggplot pueda plotearlo
   if(weighted == FALSE){
+    if(th >= 0.8){alpha <- 0.5}
     palette <- scale_color_manual(values = c("red", "blue"))
     ggplot(coords) + country_shapes +
       geom_curve(aes(x = x, y = y, xend = xend, yend = yend, color = as.factor(sign)),
                  data = edges_for_plot, curvature = 0.33, alpha = alpha) +
-      palette + mapcoords + maptheme
+      palette + mapcoords + maptheme + title + legend
   }else{
-    colors.discrete <- brewer.pal(9, "Blues")
+    if(th >= 0.8){alpha <- 0.9}
+    if(th >= 0.6 & th < 0.8){alpha <- 0.5}
+    colors.discrete <- brewer.pal(9, "Blues")[-(1:2)]
     colors.continuous <- colorRampPalette(colors.discrete)
     palette1 <- scale_color_gradientn(colours = colors.continuous(20), guide = guide_colorbar(title = "Correlation coefficient"))
-    colors.discrete <- rev(brewer.pal(9, "Reds"))
+    colors.discrete <- rev(brewer.pal(9, "Reds")[-(1:2)])
     colors.continuous <- colorRampPalette(colors.discrete)
     palette2 <- scale_color_gradientn(colours = colors.continuous(20), guide = guide_colorbar(title = "Correlation coefficient"))
     
@@ -91,7 +99,8 @@ graph_world_network <- function(graphObj, mute = FALSE){
     p1 <- ggplot(coords) + country_shapes +
       geom_curve(aes(x = x, y = y, xend = xend, yend = yend, color = signed_weight),
                  data = edges_for_plot[edges_for_plot$sign == 1,], curvature = 0.33, alpha = alpha) +
-      palette1 + mapcoords + maptheme
+      palette1 + mapcoords + maptheme +
+      title
     
     p2 <- ggplot(coords) + country_shapes +
       geom_curve(aes(x = x, y = y, xend = xend, yend = yend, color = signed_weight),
