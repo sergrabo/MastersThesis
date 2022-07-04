@@ -76,4 +76,4 @@ for (m in 0:floor(last/steps)) {
 }
 
 total.end <- Sys.time()
-print(paste0("Total elapsed time: ", t.end-t.ini))
+print(paste0("Total elapsed time: ", total.end-total.ini))
