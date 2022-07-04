@@ -15,6 +15,7 @@ library(dplyr)
 library(tidyr)
 library(RColorBrewer)
 library(sp)
+library(grid)
 library(gridExtra)
 
 # Directorio de trabajo
@@ -25,7 +26,9 @@ setwd("C:/Users/sergr/Dropbox/TFM_Sergio_Gracia")
 sapply(list.files("./scripts/MastersThesis/functions/", full.names = TRUE), "source", .GlobalEnv)
 
 # Cargamos los datos ya calculados, para evitar problemas de memoria
-load("./Rdata/ba5degAnom.Rdata", verbose = TRUE)
+# load("./Rdata/ba5degAnom.Rdata", verbose = TRUE)
+load("./Rdata/ba5deg_anom_standarize.Rdata", verbose = TRUE)
+ba.5deg.std.anom <- ba.5deg.std.anom.standarize
 load("./Rdata/mask.Rdata", verbose = TRUE)
 
 ################# Estudio por thresholds ########################
@@ -51,6 +54,8 @@ for(i in 1:length(ths)){
   comms[[i]] <- all_data[[i]][[3]]
   
   atts.unwnet <- attributes(unwnet[[i]])[-(1:5)] # Not necessary for weighted nets since only "weighted" attribute changes
+  attr(unwnet[[i]], "threshold") <- ths[i]
+  attr(wnet[[i]], "threshold") <- ths[i]
   for(j in 1:length(atts.unwnet)){
     if(i == 1){ #Initialize
       atts[[j]] <- c(atts.unwnet[[j]])
@@ -63,39 +68,77 @@ atts$thresholds <- ths
 
 rm(all_data)
 
-### Communities ###
-c <- comms[[which(ths == 0.8)]]
-cuts <- 668# 667
-plot_communities(c, ref.grid = ba.5deg.std.anom, ref.mask = mask, th = 2, cuts = cuts)
-
-### Net Measures ###
-n <- wnet[[which(ths == 0.8)]]
-plot_measures(n)
-
-K <- degree(n$graph)
-
-rand.clust_coeff <- c()
-rand.diam <- c()
-
-# Comparison with random net
-for(th in ths){
-  n_vertex <- vcount(unwnet[[1]]$graph)
-  n_edges <- atts$total_edges[which(atts$thresholds == th)]
-  
-  rand.graph <- erdos.renyi.game(n_vertex, n_edges, type = "gnm")
-  rand.clust_coeff <- c(rand.clust_coeff, transitivity(rand.graph))
-  rand.diam <- c(rand.diam, diameter(rand.graph))
+## Communities ###
+for (i in ths[9:20]) {
+  th <- i
+  c <- comms[[which.min(abs(ths-th))]]
+  d <- as.hclust(c)
+  pdf(paste0("graphs/","dendrogram_CN_",th,".pdf"), width = 8.27, height = 11.69)
+  plot(d, cex = .4, main = paste("CN",th,"threshold"), sub = "", xlab = "", lwd = 0.1)
+  abline(h=644-nrow(c$merges), col = "red", lwd = 1.5)
+  abline(h=nrow(c$merges), col = "blue")
+  dev.off()
 }
 
 
-# Plot clustering coefficient & diameter
-plot(atts$thresholds, atts$clust_coeff, col = "darkolivegreen2", pch = 16, ylim=c(-0.05,1), type = "b", lwd = 2)
-points(atts$thresholds, atts$diam/max(atts$diam), col = "darkorange1", pch = 16, type = "b", lwd = 2)
-text(atts$thresholds, -0.05, atts$total_edges, col= "blue", cex = 0.7, lwd = 2)
-points(ths, rand.clust_coeff, col = "#85B13B", pch = 16, type = "b", lwd = 2)
-points(ths, rand.diam/max(rand.diam), col = "darkorange3", pch = 16, type = "b", lwd = 2)
+cuts <- 500#
 
+th <- 0.7
+c <- comms[[which.min(abs(ths-th))]]
+n <- wnet[[which.min(abs(ths-th))]]
+k <- degree(n$graph)
+k.null <- which(k==0)
+plot_communities(c, ref.grid = ba.5deg.std.anom, ref.mask = mask, th = 2, cuts = 3)
 
+## TH = 0.7
+# cuts --> ncomm >=2 pixel
+# 300 --> 50
+# 302 --> 50
+## ~~~~~~~WARNING
+# 303 --> 50
+# 305 --> 52
+# 310 --> 57
+# 325 --> 72
+# 350  --> 88
+
+# Comparison with random net
+set.seed(4)
+rnet <- list()
+rand.clust_coeff <- c()
+rand.diam <- c()
+rand.conn <- c()
+complex.conn <- c()
+
+for (i in 1:length(ths)){
+  n_vertex <- vcount(unwnet[[i]]$graph)
+  n_edges <- atts$total_edges[i]
+  
+  rand.graph <- erdos.renyi.game(n_vertex, n_edges, type = "gnm")
+  rnet[[i]] <- rand.graph # save random net
+  rand.clust_coeff <- c(rand.clust_coeff, transitivity(rand.graph))
+  rand.diam <- c(rand.diam, diameter(rand.graph))
+  
+  # Connectivity of the graph
+  rand.conn <- c(rand.conn, diameter(rand.graph, unconnected = FALSE))
+  complex.conn <- c(complex.conn, diameter(unwnet[[i]]$graph, unconnected = FALSE))
+}
+
+rnet.plot <- lapply(rnet, FUN = as.graphObj, ref.graphObj = unwnet[[15]])
+
+################# SPATIAL PLOT #################
+# th = 0.5, 0.7, 0.8
+th <- 0.5
+i <- which.min(abs(ths-th))
+attr(rnet.plot[[i]], "threshold") <- th
+
+graph_world_network(rnet.plot[[i]])
+graph_world_network(unwnet[[i]])
+graph_world_network(wnet[[i]])
+
+################################################
+
+################# CLUSTERING COEFFICIENT AND DIAMETER VS THREHSOLD #################
+x11()
 ## add extra space to right margin of plot within frame
 par(mar=c(5, 4, 4, 6) + 0.1)
 ## Plot first set of data and draw its axis
@@ -110,13 +153,16 @@ box()
 ## Allow a second plot on the same graph
 par(new=TRUE)
 
-## Plot the second plot and put axis scale on right
-plot(ths, atts$diam, axes = FALSE, col = "darkorange1", xlab = "", ylab = "", ylim = c(-0.05,max(atts$diam)),
+# Plot the second plot and put axis scale on right
+plot(ths, atts$diam, axes = FALSE, col = "darkorange1", xlab = "", ylab = "", ylim = c(-0.05,max(c(max(rand.diam), max(atts$diam)))),
      pch = 16, type = "b", lwd = 2)
+points(ths[complex.conn==Inf], atts$diam[complex.conn==Inf], col = "darkorange1", pch = 8, cex = 2, lwd = 2)
 points(ths, rand.diam, col = "darkorange3", pch = 16, type = "b", lwd = 2)
+points(ths[rand.conn==Inf], rand.diam[rand.conn==Inf], col = "darkorange3", pch = 8, cex = 2, lwd = 2)
+
 ## a little farther out (line=4) to make room for labels
+axis(4, at = 0:max(c(max(rand.diam), max(atts$diam))), ylim = c(0,max(c(max(rand.diam), max(atts$diam)))), col = "red", col.axis = "red", las = 1)
 mtext("Diameter", side = 4, col = "red", line = 4) 
-axis(4, at = 0:max(atts$diam), ylim = c(0,max(atts$diam)), col = "red", col.axis = "red", las = 1)
 
 ## Draw the time axis
 axis(1, ths)
@@ -138,9 +184,9 @@ legend("topright",
                "#85B13B",
                "darkorange1",
                "darkorange3"))
+####################################################################################
 
-
-# Plot mean edge distance
+################# MEAN EDGE DISTANCE VS THREHSOLD #################
 par(mar=c(5, 6, 4, 2) + 0.1)
 plot(ths, atts$total_mean_dist, col = "black", pch = 16, type = "b",
      ylim = c(0, 10000), xlab = "", ylab = "", axes = FALSE)
@@ -165,6 +211,4 @@ legend(x = 0.15, y = 4000,
        col = c("black",
                "blue",
                "red"))
-
-# Plot communities
-l <- lapply(comms, FUN = plot_communities, ref.grid = ba.5deg.std.anom, ref.mask = mask, mute = TRUE)
+###################################################################
