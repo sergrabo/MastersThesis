@@ -66,12 +66,13 @@ res <- 5 / 0.25 # Resolucion
 # mask <- which(fba.vec > 0.1)
 
 # Cargamos los datos ya calculados, para evitar problemas de memoria
-load("./Rdata/ba5degAnom.Rdata", verbose = TRUE)
+# load("./Rdata/ba5degAnom.Rdata", verbose = TRUE)
+load("./Rdata/ba5deg_anom_standarize.Rdata", verbose = TRUE)
+ba.5deg.std.anom <- ba.5deg.std.anom.standarize
 load("./Rdata/mask.Rdata", verbose = TRUE)
 
 by = 0.05
-thresholds <- seq(0.4, 1-by, by = by)
-thresholds <- seq(0, 0.4-by, by = by)
+thresholds <- seq(0, 1-by, by = by)
 
 for(cor.th in rev(thresholds)){
     
@@ -96,6 +97,7 @@ for(cor.th in rev(thresholds)){
     graph_world_network(unweighted.net, mute = TRUE)
     
     dev.off()
+    
     ### Red compleja pesada ###
     plot.file <- paste0(path, "/SpatialNetwork_weighted.pdf")
     pdf(file = plot.file)
@@ -103,7 +105,6 @@ for(cor.th in rev(thresholds)){
     graph_world_network(weighted.net, mute = TRUE)
     
     dev.off()
-    
     
     # Plot distance vs correlation
     plot.file <- paste0(path, "/distVScorr.pdf")
@@ -123,21 +124,21 @@ for(cor.th in rev(thresholds)){
     
     dev.off()
     
-    ########## Estudio de clustering en la red ##########
+    ######### Estudio de clustering en la red ##########
     # Compute communities through cluster_edge_betweenness
-    start <- Sys.time()
-    comObj <- cluster_edge_betweenness(unweighted.net$graph, directed = FALSE)
-    end <- Sys.time()
-    print(paste("Communities execution time: ", end-start))
+    # start <- Sys.time()
+    # comObj <- cluster_edge_betweenness(unweighted.net$graph, directed = FALSE)
+    # end <- Sys.time()
+    # print(paste("Communities execution time: ", end-start))
+    # 
+    # com.file <- paste0(path, "/communities.Rdata")
+    # save(comObj, file = com.file)
 
-    com.file <- paste0(path, "/communities.Rdata")
-    save(comObj, file = com.file)
+    # plot.file <- paste0(path, "/CentralityMeasures.pdf")
+    # pdf(file = plot.file)
 
-    plot.file <- paste0(path, "/CentralityMeasures.pdf")
-    pdf(file = plot.file)
-
-    plot_communities(comObj, ref.grid = ba.5deg.std.anom, ref.mask = mask, th = 7, mute = TRUE)
-    dev.off()
+    # plot_communities(comObj, ref.grid = ba.5deg.std.anom, ref.mask = mask, th = 7, mute = TRUE)
+    # dev.off()
     
     
     cat("Plotted for th = ", cor.th, "\n")
