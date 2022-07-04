@@ -24,18 +24,21 @@
 #' 
 #' 
 
-plot_communities <- function(comObj, ref.grid, ref.mask = NULL, th = 2, cuts = 10, mute = FALSE){
+plot_communities <- function(comObj, ref.grid, ref.mask = NULL, th = 2, cuts = 0 , mute = FALSE) {
   
   if(!is.null(comObj)){
-    com <- cut_at(comObj, cuts)
     
+    # Mínimo valor de cuts para que no salga warning
+    min.cuts <- comObj$vcount - nrow(comObj$merges)
+    com <- cut_at(comObj, min.cuts + cuts)
     # com <- membership(comObj)  
     com.sizes <- table(com)
-    
+
     # Choose communities with population bigger than the threshold
     com.mask <- as.integer(names(com.sizes[which(com.sizes>=th)]))
     
     com <- match(com, com.mask)
+    com[is.na(com)] <- 0 # Comunidades eliminadas pertenecen a una ficticia
     
     ncom <- length(levels(factor(com)))
     
@@ -55,14 +58,19 @@ plot_communities <- function(comObj, ref.grid, ref.mask = NULL, th = 2, cuts = 1
     ##############################################################################
     # visualizar communities: evitar problemas con colores
     
-    set.seed(4)
-    if(ncom <= 9){
-      colRainbow <- brewer.pal(ncom,"Set1")
-    } else {
+    set.seed(44)
+    if(ncom < 3){
+      colRainbow <- c("", "#ff0000") # c(blank (fictional comm), red)
+    }else if(ncom >= 3 & ncom <= 9){
+      colRainbow <- brewer.pal(ncom, "Set1")
+    }else {
       colRainbow <- brewer.pal(9,"Set1")
       colRainbow<- colorRampPalette(colRainbow)(ncom)
     }
     if(ncom > 15){colRainbow <- sample(colRainbow,length(colRainbow))}
+    
+    colRainbow[1] = "#F5E9E2" # Definimos el color de la comunidad ficticia
+    print(colRainbow)
     
     if(mute == FALSE){
       x11()
