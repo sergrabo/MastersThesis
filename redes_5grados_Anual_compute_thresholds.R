@@ -17,6 +17,7 @@ library(dplyr)
 library(tidyr)
 library(RColorBrewer)
 library(sp)
+library(grid)
 library(gridExtra)
 
 # Directorio de trabajo
@@ -31,7 +32,7 @@ sapply(list.files("./scripts/MastersThesis/functions/", full.names = TRUE), "sou
 # Parametros del modelo #
 
 # cor.th <- 0.65 # Correlation Threshold
-dist.th <- 1000 # Distance threshold (km)
+dist.th <- 0 # Distance threshold (km)
 res <- 5 / 0.25 # Resolucion
 
 # # Cargamos los datos pre-adaptados
@@ -73,6 +74,7 @@ load("./Rdata/mask.Rdata", verbose = TRUE)
 
 by = 0.05
 thresholds <- seq(0, 1-by, by = by)
+# thresholds <- seq(0.4, 1-by, by = by)
 
 for(cor.th in rev(thresholds)){
     
@@ -125,7 +127,7 @@ for(cor.th in rev(thresholds)){
     dev.off()
     
     ######### Estudio de clustering en la red ##########
-    # Compute communities through cluster_edge_betweenness
+    # # Compute communities through cluster_edge_betweenness
     # start <- Sys.time()
     # comObj <- cluster_edge_betweenness(unweighted.net$graph, directed = FALSE)
     # end <- Sys.time()
@@ -133,10 +135,10 @@ for(cor.th in rev(thresholds)){
     # 
     # com.file <- paste0(path, "/communities.Rdata")
     # save(comObj, file = com.file)
-
+    # 
     # plot.file <- paste0(path, "/CentralityMeasures.pdf")
     # pdf(file = plot.file)
-
+    # 
     # plot_communities(comObj, ref.grid = ba.5deg.std.anom, ref.mask = mask, th = 7, mute = TRUE)
     # dev.off()
     
