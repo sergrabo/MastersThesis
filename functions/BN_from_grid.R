@@ -46,7 +46,8 @@ BN_from_grid <- function(grid, mask){
   
   BNobj <- list("BN" = BN,
                 "BN.igraph" = igraph,
-                "VertexCoords" = ref.coords)
+                "VertexCoords" = ref.coords,
+                "data" = data)
   
   attr(BNobj, "Xcoords") <- x
   attr(BNobj, "Ycoords") <- y

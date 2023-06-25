@@ -16,8 +16,11 @@ setwd("C:/Users/sergr/Dropbox/TFM_Sergio_Gracia")
 #setwd("/home/juaco/Dropbox/TFM_Sergio_Gracia")
 
 # Cargamos los datos ya calculados, para evitar problemas de memoria
-load("./Rdata/ba5degAnom.Rdata", verbose = TRUE)
+# load("./Rdata/ba5degAnom.Rdata", verbose = TRUE)
 load("./Rdata/ba_5deg.Rdata", verbose = TRUE)
+load("./Rdata/ba5deg_anom_standarize.Rdata", verbose = TRUE)
+ba.5deg.std.anom <- ba.5deg.std.anom.standarize
+rm(ba.5deg.std.anom.standarize)
 load("./Rdata/mask.Rdata", verbose = TRUE)
 
 ##################################################################################
