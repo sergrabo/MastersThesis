@@ -101,6 +101,7 @@ Graph_from_Grid <- function(grid,
   attr(graphObj, "Ycoords") <- y
   attr(graphObj, "ref.dates") <- ref.dates
   attr(graphObj, "weightedGraph") <- weighted
+  attr(graphObj, "threshold") <- cor.th
   
   # Edges computing
   edges <- get.edgelist(graph) %>% data.frame() %>% setNames(c("from", "to"))

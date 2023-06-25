@@ -24,6 +24,8 @@
 
 plot_measures <- function(graphObj, mute = FALSE) {
   
+  th = attr(graphObj, "threshold")
+  
   # Quitar la antártida
   ylim = c(-75,90)
   
@@ -37,7 +39,7 @@ plot_measures <- function(graphObj, mute = FALSE) {
     stop("Cannot plot correlation-based strength since edges have no weight", call. = FALSE)
   }
   
-  p1 = spatialPlot(clim$degree, backdrop.theme = "coastline", main = "Degree distribution", color.theme = "YlOrRd", ylim=ylim)
+  p1 = spatialPlot(clim$degree, backdrop.theme = "coastline", main = "Degree", color.theme = "YlOrRd", ylim=ylim)
   p2 = spatialPlot(clim$betweenness, backdrop.theme = "coastline", main = "Betweenness", color.theme = "YlGnBu",ylim=ylim)
   p3 = spatialPlot(clim$dist_strength, backdrop.theme = "coastline", main = "Distance-based strength", color.theme = "PuRd",ylim=ylim)
   p4 = spatialPlot(clim$mean_dist_per_node, backdrop.theme = "coastline", main = "Mean link distance per node", color.theme = "PuRd",ylim=ylim)
@@ -45,6 +47,9 @@ plot_measures <- function(graphObj, mute = FALSE) {
   p6 = spatialPlot(clim$awconnectivity, backdrop.theme = "coastline", main = "Area Weighted Connectivity", color.theme = "RdPu", ylim = ylim)
 
   if(mute == FALSE){x11()}
-  grid.arrange(p1, p2, p3, p4, p5, p6, nrow = 3, ncol = 2)
+  grid.arrange(p1, p2, p3, p4, p5, p6,
+               nrow = 3, ncol = 2,
+               top=textGrob(bquote("Centrality measures for " ~ tau[c] ~ "=" ~ .(th)), gp=gpar(fontsize=20,font=1)))
+               
   
 }

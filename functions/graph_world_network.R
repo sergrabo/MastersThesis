@@ -73,13 +73,16 @@ graph_world_network <- function(graphObj, mute = FALSE){
                                  size = 0.15)
   mapcoords <- coord_fixed(xlim = c(-150, 180), ylim = c(-55, 80))
   
-  title <- ggtitle(paste0("Spatial Network for th = ", th))
+  title <- ggtitle(bquote("Spatial Network for " ~ tau[c] ~ "=" ~ .(th)))
+  title1 <- ggtitle(bquote("Positive Spatial Network for " ~ tau[c] ~ "=" ~ .(th)))
+  title2 <- ggtitle(bquote("Negative Spatial Network for " ~ tau[c] ~ "=" ~ .(th)))
   legend <- labs(color = "Correlation sign")
   
   # PLOT: ¡¡¡IMPORTANTE!!! Siempre poner el plot lo último para que ggplot pueda plotearlo
   if(weighted == FALSE){
     if(th >= 0.8){alpha <- 0.5}
     palette <- scale_color_manual(values = c("red", "blue"))
+    if(range(edges$sign)[1] == 1){palette <- scale_color_manual(values = c("blue"))}
     ggplot(coords) + country_shapes +
       geom_curve(aes(x = x, y = y, xend = xend, yend = yend, color = as.factor(sign)),
                  data = edges_for_plot, curvature = 0.33, alpha = alpha) +
@@ -100,12 +103,13 @@ graph_world_network <- function(graphObj, mute = FALSE){
       geom_curve(aes(x = x, y = y, xend = xend, yend = yend, color = signed_weight),
                  data = edges_for_plot[edges_for_plot$sign == 1,], curvature = 0.33, alpha = alpha) +
       palette1 + mapcoords + maptheme +
-      title
+      title1
     
     p2 <- ggplot(coords) + country_shapes +
       geom_curve(aes(x = x, y = y, xend = xend, yend = yend, color = signed_weight),
                  data = edges_for_plot[edges_for_plot$sign == -1,], curvature = 0.33, alpha = alpha) +
-      palette2 + mapcoords + maptheme
-    grid.arrange(p1,p2, ncol= 1)
+      palette2 + mapcoords + maptheme+
+      title2
+    grid.arrange(p1,p2, ncol = 1)
   }
 }

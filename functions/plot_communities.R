@@ -24,7 +24,16 @@
 #' 
 #' 
 
-plot_communities <- function(comObj, ref.grid, ref.mask = NULL, th = 2, cuts = 0 , mute = FALSE) {
+plot_communities <- function(comObj, ref.grid, ref.mask = NULL, th = 2, cuts = 0, cor.th = NULL, mute = FALSE) {
+  
+  ### Debug ###
+  # cor.th <- 0.6
+  # comObj <- comms[[which.min(abs(ths-cor.th))]]
+  # ref.grid <- ba.5deg.std.anom
+  # ref.mask <- mask
+  # th <- 2
+  # cuts <- 25
+  # mute  <- FALSE
   
   if(!is.null(comObj)){
     
@@ -43,7 +52,7 @@ plot_communities <- function(comObj, ref.grid, ref.mask = NULL, th = 2, cuts = 0
     ncom <- length(levels(factor(com)))
     
     # Convert to climatology object
-    quantity <- com
+    quantity <- com + 0.5 #Se suma 0.5 para que cuadre con el eje de colores (cerdada)
     if(!is.null(ref.mask)){
       L = length(ref.grid$xyCoords$x) * length(ref.grid$xyCoords$y)
       mat <- matrix(NA, nrow = 1, ncol = L)  
@@ -58,35 +67,46 @@ plot_communities <- function(comObj, ref.grid, ref.mask = NULL, th = 2, cuts = 0
     ##############################################################################
     # visualizar communities: evitar problemas con colores
     
-    set.seed(44)
-    if(ncom < 3){
-      colRainbow <- c("", "#ff0000") # c(blank (fictional comm), red)
-    }else if(ncom >= 3 & ncom <= 9){
-      colRainbow <- brewer.pal(ncom, "Set1")
-    }else {
-      colRainbow <- brewer.pal(9,"Set1")
-      colRainbow<- colorRampPalette(colRainbow)(ncom)
-    }
-    if(ncom > 15){colRainbow <- sample(colRainbow,length(colRainbow))}
+    set.seed(45412)
+    # if(ncom < 3){
+    #   colRainbow <- brewer.pal(3, "Set1")[1:ncom]
+    # }else if(ncom >= 3 & ncom <= 9){
+    #   colRainbow <- brewer.pal(ncom, "Set1")[1:ncom]
+    # }else {
+    #   colRainbow <- brewer.pal(9,"Set1")
+    #   colRainbow<- colorRampPalette(colRainbow)(ncom)
+    # }
+    # if(ncom > 9){colRainbow <- sample(colRainbow,length(colRainbow))}
     
-    colRainbow[1] = "#F5E9E2" # Definimos el color de la comunidad ficticia
-    print(colRainbow)
+    #### Definición alternativa de los colores ####
+    # Paleta de N_vertex colores
+    N_vertex <- comObj$vcount
+    colRainbow <- brewer.pal(9,"Set1")
+    colRainbow<- colorRampPalette(colRainbow)(N_vertex)
+    colRainbow <- sample(colRainbow,length(colRainbow))[1:ncom]
+    # Definimos el color de la comunidad ficticia id = 0
+    colRainbow[1] = "#F5E9E2"
+    # Definimos el color de la comunidad más grande id = 1
+    colRainbow[2] = "#E41A1C"
     
     if(mute == FALSE){
       x11()
+      # spatialPlot(grid = memClim, backdrop.theme = "coastline",
+      #             lonCenter = 0, 
+      #             regions = TRUE, col.regions = colRainbow, rev.colors = FALSE, 
+      #             main = paste0("Communities"),
+      #             colorkey = list(col = colRainbow, width = 0.6, at = 0:(ncom),
+      #                             labels = list(cex = 0.5, labels = as.character(0:ncom), at = 0.5:(ncom-0.5))))
+      
       spatialPlot(grid = memClim, backdrop.theme = "coastline",
                   lonCenter = 0, 
-                  regions = TRUE, col.regions = colRainbow, rev.colors = FALSE, 
-                  main = paste0("Comunities"),
-                  colorkey = list(col = colRainbow, width = 0.6, at = 0:(ncom-1),
-                                  labels = list(cex = 0.5, labels = as.character(1:ncom), at = 0.5:(ncom-0.5))))
+                  regions = TRUE, col.regions = colRainbow, at = 0:ncom, rev.colors = FALSE,
+                  main = bquote("Communities for " ~ tau[c] ~ "=" ~ .(cor.th)))
     }else{
       p <- spatialPlot(grid = memClim, backdrop.theme = "coastline",
                        lonCenter = 0, 
-                       regions = TRUE, col.regions = colRainbow, rev.colors = FALSE, 
-                       main = paste0("Comunities"),
-                       colorkey = list(col = colRainbow, width = 0.6, at = 0:(ncom-1),
-                                       labels = list(cex = 0.5, labels = as.character(1:ncom), at = 0.5:(ncom-0.5))))
+                       regions = TRUE, col.regions = colRainbow, at = 0:ncom, rev.colors = FALSE,
+                       main = bquote("Communities for " ~ tau[c] ~ "=" ~ .(cor.th)))
       return(p)
     }
   }
