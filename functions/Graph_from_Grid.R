@@ -51,9 +51,6 @@ Graph_from_Grid <- function(grid,
     time.coords.matrix <- time.coords.matrix[,mask]
   }
   
-  # Compute distance between all coordinates
-  pts <- SpatialPoints(cbind(ref.coords$lon, ref.coords$lat), proj4string = CRS("+init=epsg:4326"))
-  all_dists <- spDists(pts, longlat = TRUE)
   # Correlation matrix
   cor.matrix <- cor(time.coords.matrix, method = method) 
   
@@ -68,9 +65,12 @@ Graph_from_Grid <- function(grid,
   signed.adj <- sign(cor.matrix) * adj.matrix
   signed.adj[is.na(signed.adj)] <- 0
   
+  # Compute distance between all coordinates
+  pts <- SpatialPoints(cbind(ref.coords$lon, ref.coords$lat), proj4string = CRS("+init=epsg:4326"))
+  all_dists <- spDists(pts, longlat = TRUE)
   # Geographical distance matrix
   dists <- matrix(data = 0, nrow = length(pts), ncol = length(pts))
-  dists[which(adj.matrix > 0)] <- spDists(pts, longlat = TRUE)[which(adj.matrix > 0)]
+  dists[which(adj.matrix > 0)] <- all_dists[which(adj.matrix > 0)]
   
   # Graph
   graph <- graph_from_adjacency_matrix(adj.matrix, mode = "undirected")
