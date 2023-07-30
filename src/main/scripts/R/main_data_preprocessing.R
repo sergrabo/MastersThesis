@@ -3,6 +3,9 @@ library(magrittr)
 library(transformeR)
 library(visualizeR)
 
+# Remove variables, if there are any
+rm(list = ls())
+
 data_preprocessing <- function(annual_period = 2001:2019,
                                spatial_resolution = 5,
                                data_dir="src/main/resources/input_data"){
@@ -25,12 +28,12 @@ data_preprocessing <- function(annual_period = 2001:2019,
   load(paste0(data_dir, "/MODIS_OLCI_fba_200101-202010.Rdata"), verbose = TRUE)
   
   # Annual time aggregation
-  cat("--- Starting annual time aggregation ---")
+  cat("--- Starting annual time aggregation ---\n")
   ba.merge <- subsetGrid(ba.merge, years = annual_period)
   ba.merge <- aggregateGrid(ba.merge, aggr.y = list(FUN = "sum"))
   
   # Spatial Upscaling: 5 deg resolution using conservative method
-  cat("---Starting spatial upscaling ---")
+  cat("---Starting spatial upscaling ---\n")
   ba.5deg <- upscaleGrid(ba.merge, times = times, aggr.fun = list(FUN = "sum", na.rm = TRUE)) %>% redim(drop = TRUE)
   fba.5deg <- upscaleGrid(fba.merge, times = times, aggr.fun = list(FUN = "mean", na.rm = TRUE)) %>% redim(drop = TRUE)
   
