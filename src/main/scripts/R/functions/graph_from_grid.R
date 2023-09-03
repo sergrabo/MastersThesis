@@ -1,30 +1,27 @@
-#     Graph_from_Grid
-#
-#     This program is free software: you can redistribute it and/or modify
-#     it under the terms of the GNU General Public License as published by
-#     the Free Software Foundation, either version 3 of the License, or
-#     (at your option) any later version.
-# 
-#     This program is distributed in the hope that it will be useful,
-#     but WITHOUT ANY WARRANTY; without even the implied warranty of
-#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#     GNU General Public License for more details.
-# 
-#     You should have received a copy of the GNU General Public License
-#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#     graph_from_grid
 
-#' @title Graph from C4R grid
+#' @title Graph from C4R grid object
 #' @description Convert a climate4R grid to an igraph undirected complex network
 #' @param grid Input C4R grid
 #' @param cor.th (Absolute) correlation coefficient threshold to consider a link
-#' @return 
+#' @param dist.th distance threshold to consider a link
+#' @param weighted Wether the graph should be weighted or unweighted
+#' @param mask Spatialy indexed array to subset the grid
+#' @param subind Temporaly indexed array to subset the grid
+#' @param method Method to perform correlation
+#' @return graphObj
 #' @author Sergio Gracia
 #' @references 
-#' 
 
-Graph_from_Grid <- function(grid,
+library(igraph)
+library(magrittr)
+library(sp)
+library(transformeR)
+library(visualizeR)
+
+graph_from_grid <- function(grid,
                             cor.th = 0.8,
-                            dist.th = 1000,
+                            dist.th = 0,
                             weighted = FALSE,
                             mask = NULL,
                             subind = NULL,
@@ -51,6 +48,10 @@ Graph_from_Grid <- function(grid,
     time.coords.matrix <- time.coords.matrix[,mask]
   }
   
+  # Compute distance between all coordinates
+  pts <- SpatialPoints(cbind(ref.coords$lon, ref.coords$lat), proj4string = CRS("+init=epsg:4326"))
+  all_dists <- spDists(pts, longlat = TRUE)
+  
   # Correlation matrix
   cor.matrix <- cor(time.coords.matrix, method = method) 
   
@@ -65,9 +66,7 @@ Graph_from_Grid <- function(grid,
   signed.adj <- sign(cor.matrix) * adj.matrix
   signed.adj[is.na(signed.adj)] <- 0
   
-  # Compute distance between all coordinates
-  pts <- SpatialPoints(cbind(ref.coords$lon, ref.coords$lat), proj4string = CRS("+init=epsg:4326"))
-  all_dists <- spDists(pts, longlat = TRUE)
+  
   # Geographical distance matrix
   dists <- matrix(data = 0, nrow = length(pts), ncol = length(pts))
   dists[which(adj.matrix > 0)] <- all_dists[which(adj.matrix > 0)]

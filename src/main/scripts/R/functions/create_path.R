@@ -26,6 +26,6 @@ create_path <- function(th){
   specify_decimal <- function(x, k) trimws(format(round(x, k), nsmall=k))
   th.form <- specify_decimal(th, 2)
   decimal <- substr(th.form, 3, 4)
-  path <- paste0("/th_0",decimal)
+  path <- paste0("th_0",decimal)
   return(path)
 }

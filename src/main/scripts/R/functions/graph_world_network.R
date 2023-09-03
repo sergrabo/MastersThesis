@@ -15,27 +15,34 @@
 
 #' @title Linked world plot
 #' @description Generates a network plot in which the nodes correspond to their geographical location
-#' @param graph 
-#' @param coords
-#' @param weighted
-#' @return 
+#' @param graphObj GraphObj with network's info 
+#' @param mute bool, wether to save the graph or show it on screen
+#' @param filename File name (and extension) to save the graph. Necesary if mute=True
+#' @param save_path Directory path where to save the graph. Necessary if mute=True
+#' @return
 #' @author Sergio Gracia
 #' @references https://www.r-bloggers.com/2018/05/three-ways-of-visualizing-a-graph-on-a-map/
 #' 
 #' 
 #' 
 
+library(magrittr)
+library(dplyr)
+library(igraph)
+library(ggplot2)
+library(gridExtra)
+library(RColorBrewer)
 
-graph_world_network <- function(graphObj, mute = FALSE){
+graph_world_network <- function(graphObj, mute = FALSE, filename=NULL, save_path=NULL){
   graph <- graphObj$graph
   coords <- graphObj$VertexCoords
   weighted = attr(graphObj, "weighted")
   th = attr(graphObj, "threshold")
   
   alpha <- 0.25
-  # Abrimos ventana para el plot
+  # Open window for the plot
   if(mute == FALSE){x11()}
-  # Guardamos todos los links de la red en formato "from-to" indicando de un id a otro
+  # Save all network's links in "from-to" format, specifying which ids they connect
   edges <- get.edgelist(graph) %>% data.frame() %>% setNames(c("from", "to"))
   if(weighted == TRUE){edges$weight <- E(graph)$weight}
   
@@ -47,14 +54,14 @@ graph_world_network <- function(graphObj, mute = FALSE){
   dist.matrix <- graphObj$geodist
   edges$dist <- mapply(FUN = function(x,y) dist.matrix[x,y], edges$from, edges$to)
   
-  # Añadimos a los links la informacion de las coordenadas de cada id
+  # Add id's coordinates information to the links
   edges_for_plot <- edges %>%
     inner_join(coords %>% select(id, lon, lat), by = c('from' = 'id')) %>%
     rename(x = lon, y = lat) %>%
     inner_join(coords %>% select(id, lon, lat), by = c('to' = 'id')) %>%
     rename(xend = lon, yend = lat)
   
-  # Tema del mapa 
+  # Map Theme
   maptheme <- theme(panel.grid = element_blank()) +
     theme(axis.text = element_blank()) +
     theme(axis.ticks = element_blank()) +
@@ -66,7 +73,7 @@ graph_world_network <- function(graphObj, mute = FALSE){
     theme(panel.background = element_rect(fill = "#d2edfa")) +
     theme(plot.margin = unit(c(1, 0, 0.5, 0), 'cm'))
   
-  # Background del mapamundi
+  # World map background
   country_shapes <- geom_polygon(aes(x = long, y = lat, group = group),
                                  data = map_data('world'),
                                  fill = "#c4a174", color = "#515151",
@@ -78,7 +85,7 @@ graph_world_network <- function(graphObj, mute = FALSE){
   title2 <- ggtitle(bquote("Negative Spatial Network for " ~ tau[c] ~ "=" ~ .(th)))
   legend <- labs(color = "Correlation sign")
   
-  # PLOT: ¡¡¡IMPORTANTE!!! Siempre poner el plot lo último para que ggplot pueda plotearlo
+  # PLOT:!!!IMPORTANT!!! Always plot last so ggplot works properly
   if(weighted == FALSE){
     if(th >= 0.8){alpha <- 0.5}
     palette <- scale_color_manual(values = c("red", "blue"))
@@ -111,5 +118,10 @@ graph_world_network <- function(graphObj, mute = FALSE){
       palette2 + mapcoords + maptheme+
       title2
     grid.arrange(p1,p2, ncol = 1)
+  }
+  if(mute==TRUE){
+    # Check if save_path and filename are both defined
+    if(is.null(save_path) | is.null(filename)){stop("When mute=True, save_path must be defined")}
+    ggsave(filename=filename, path=save_path) %>% suppressMessages()
   }
 }
