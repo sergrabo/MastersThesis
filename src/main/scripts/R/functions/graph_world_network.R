@@ -121,7 +121,7 @@ graph_world_network <- function(graphObj, mute = FALSE, filename=NULL, save_path
   }
   if(mute==TRUE){
     # Check if save_path and filename are both defined
-    if(is.null(save_path) | is.null(filename)){stop("When mute=True, save_path must be defined")}
+    if(is.null(save_path) | is.null(filename)){stop("When mute=True, save_path and filename must be defined")}
     ggsave(filename=filename, path=save_path) %>% suppressMessages()
   }
 }
