@@ -6,6 +6,7 @@ func_path = "src/main/scripts/R/functions/"
 source(paste0(func_path, "create_path.R"))
 source(paste0(func_path, "graph_from_grid.R"))
 source(paste0(func_path, "graph_world_network.R"))
+source(paste0(func_path, "plot_dist_corr.R"))
 
 
 
@@ -47,14 +48,9 @@ for(cor.th in rev(thresholds)){
   ### Weighted Correlation Network ###
   graph_world_network(weighted.net, mute = TRUE, save_path = path, filename="SpatialNetwork_weighted.pdf")
 
-  # # Plot distance vs correlation
-  # plot.file <- paste0(path, "/distVScorr.pdf")
-  # pdf(file = plot.file)
-  # 
-  # plot_dist_corr(weighted.net, mute = TRUE)
-  # 
-  # dev.off()
-  # 
+  # Plot distance vs correlation
+  plot_dist_corr(weighted.net, mute = TRUE, save_path=path, filename="distVScorr.pdf")
+
   # ########## Metricas de redes complejas ##########
   # 
   # # Plot measures

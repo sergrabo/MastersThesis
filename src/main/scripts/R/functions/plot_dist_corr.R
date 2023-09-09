@@ -14,15 +14,22 @@
 #     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #' @title 
-#' @description 
-#' @param graphObj
+#' @description Plot the (distance, correlation) pairs for each link in the graph
+#' @param graphObj Graph Object containing network's information
+#' @param mute bool, wether to save the graph or show it on screen
+#' @param filename File name (and extension) to save the graph. Necesary if mute=True
+#' @param save_path Directory path where to save the graph. Necessary if mute=True
 #' @return 
 #' @author Sergio Gracia
 #' @references 
 #' 
 #' 
 
-plot_dist_corr <- function(graphObj, mute = FALSE){
+library(magrittr)
+library(ggplot2)
+library(sp)
+
+plot_dist_corr <- function(graphObj, mute = FALSE, save_path = NULL, filename = NULL){
   
   graph <- graphObj$graph
   weighted = attr(graphObj, "weighted")
@@ -49,4 +56,9 @@ plot_dist_corr <- function(graphObj, mute = FALSE){
     geom_point(aes(weight, dist, col = as.factor(sign)), data = edges) +
     palette +
     xlim(0,1) + ylim(0, 20000)
+  if(mute==TRUE){
+    # Check if save_path and filename are both defined
+    if(is.null(save_path) | is.null(filename)){stop("When mute=True, save_path and filename must be defined")}
+    ggsave(filename=filename, path=save_path) %>% suppressMessages()
+  }
 }
