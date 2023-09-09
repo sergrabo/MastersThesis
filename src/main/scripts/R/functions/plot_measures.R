@@ -13,20 +13,27 @@
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#' @title 
-#' @description 
-#' @param graphObj
+#' @title Plot centrality measures 
+#' @description Plots maps with centrality measures for all nodes in the network
+#' @param graphObj GraphObj with network's info 
+#' @param mute bool, whether to save the graph or show it on screen
 #' @return 
 #' @author Sergio Gracia
 #' @references 
 #' 
-#' 
+
+func_path = "src/main/scripts/R/functions/"
+source(paste(func_path, "graph2measure.R", sep="/"))
+source(paste(func_path, "quantity2clim.R", sep="/"))
+
+library(grid)
+library(visualizeR)
 
 plot_measures <- function(graphObj, mute = FALSE) {
   
   th = attr(graphObj, "threshold")
   
-  # Quitar la antártida
+  # Visually remove Antarctica from the plot
   ylim = c(-75,90)
   
   # Compute complex network's centrality measures

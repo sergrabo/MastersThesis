@@ -7,6 +7,7 @@ source(paste0(func_path, "create_path.R"))
 source(paste0(func_path, "graph_from_grid.R"))
 source(paste0(func_path, "graph_world_network.R"))
 source(paste0(func_path, "plot_dist_corr.R"))
+source(paste0(func_path, "plot_measures.R"))
 
 
 
@@ -51,15 +52,15 @@ for(cor.th in rev(thresholds)){
   # Plot distance vs correlation
   plot_dist_corr(weighted.net, mute = TRUE, save_path=path, filename="distVScorr.pdf")
 
-  # ########## Metricas de redes complejas ##########
-  # 
-  # # Plot measures
-  # plot.file <- paste0(path, "/CentralityMeasures.pdf")
-  # pdf(file = plot.file)
-  # 
-  # plot_measures(weighted.net, mute = TRUE)
-  # 
-  # dev.off()
+  ########## Complex network's centrality measures ##########
+
+  # Plot measures
+  plot.file <- paste0(path, "/CentralityMeasures.pdf")
+  pdf(file = plot.file)
+
+  plot_measures(weighted.net, mute = TRUE)
+
+  dev.off()
   
   
   
