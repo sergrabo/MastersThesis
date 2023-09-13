@@ -1,4 +1,4 @@
-#     compute_communities
+#     plot_communities
 #
 #     This program is free software: you can redistribute it and/or modify
 #     it under the terms of the GNU General Public License as published by
@@ -14,15 +14,25 @@
 #     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #' @title 
-#' @description 
-#' @param graphObj
-#' @param th Population threshold
+#' @description plot pre-computed communities
+#' @param comObj Community Object, result of cluster_edge_betweenness()
+#' @param ref.grid reference grid for climatology object
+#' @param ref.mask reference node mask
+#' @param th community threshold
+#' @param cuts 
+#' @param cor.th correlation threshold
+#' @param mute Bool, whether or not to show the plot
 #' @return 
 #' @author Sergio Gracia
 #' @references 
 #' 
 #' 
 #' 
+
+library(igraph)
+library(transformeR)
+library(visualizeR)
+library(RColorBrewer)
 
 plot_communities <- function(comObj, ref.grid, ref.mask = NULL, th = 2, cuts = 0, cor.th = NULL, mute = FALSE) {
   
@@ -37,7 +47,7 @@ plot_communities <- function(comObj, ref.grid, ref.mask = NULL, th = 2, cuts = 0
   
   if(!is.null(comObj)){
     
-    # Mínimo valor de cuts para que no salga warning
+    # Minimum cut value to avoid warning
     min.cuts <- comObj$vcount - nrow(comObj$merges)
     com <- cut_at(comObj, min.cuts + cuts)
     # com <- membership(comObj)  
@@ -47,12 +57,12 @@ plot_communities <- function(comObj, ref.grid, ref.mask = NULL, th = 2, cuts = 0
     com.mask <- as.integer(names(com.sizes[which(com.sizes>=th)]))
     
     com <- match(com, com.mask)
-    com[is.na(com)] <- 0 # Comunidades eliminadas pertenecen a una ficticia
+    com[is.na(com)] <- 0 # Deleted communities belong to one fictitious community
     
     ncom <- length(levels(factor(com)))
     
     # Convert to climatology object
-    quantity <- com + 0.5 #Se suma 0.5 para que cuadre con el eje de colores (cerdada)
+    quantity <- com + 0.5 #Add 0.5 so it fits with color axis (dirty-hardcode)
     if(!is.null(ref.mask)){
       L = length(ref.grid$xyCoords$x) * length(ref.grid$xyCoords$y)
       mat <- matrix(NA, nrow = 1, ncol = L)  
@@ -65,38 +75,23 @@ plot_communities <- function(comObj, ref.grid, ref.mask = NULL, th = 2, cuts = 0
     memClim <- ref.grid
 
     ##############################################################################
-    # visualizar communities: evitar problemas con colores
+    # Community visualization: avoid color repetition
     
     set.seed(45412)
-    # if(ncom < 3){
-    #   colRainbow <- brewer.pal(3, "Set1")[1:ncom]
-    # }else if(ncom >= 3 & ncom <= 9){
-    #   colRainbow <- brewer.pal(ncom, "Set1")[1:ncom]
-    # }else {
-    #   colRainbow <- brewer.pal(9,"Set1")
-    #   colRainbow<- colorRampPalette(colRainbow)(ncom)
-    # }
-    # if(ncom > 9){colRainbow <- sample(colRainbow,length(colRainbow))}
     
-    #### Definición alternativa de los colores ####
-    # Paleta de N_vertex colores
+    #### Alternative color definition ####
+    # N_vertex color palette
     N_vertex <- comObj$vcount
     colRainbow <- brewer.pal(9,"Set1")
     colRainbow<- colorRampPalette(colRainbow)(N_vertex)
     colRainbow <- sample(colRainbow,length(colRainbow))[1:ncom]
-    # Definimos el color de la comunidad ficticia id = 0
+    # Handpick fictitious community's color (id=0)
     colRainbow[1] = "#F5E9E2"
-    # Definimos el color de la comunidad más grande id = 1
+    # Handpick biggest community's color (id=1)
     colRainbow[2] = "#E41A1C"
     
     if(mute == FALSE){
       x11()
-      # spatialPlot(grid = memClim, backdrop.theme = "coastline",
-      #             lonCenter = 0, 
-      #             regions = TRUE, col.regions = colRainbow, rev.colors = FALSE, 
-      #             main = paste0("Communities"),
-      #             colorkey = list(col = colRainbow, width = 0.6, at = 0:(ncom),
-      #                             labels = list(cex = 0.5, labels = as.character(0:ncom), at = 0.5:(ncom-0.5))))
       
       spatialPlot(grid = memClim, backdrop.theme = "coastline",
                   lonCenter = 0, 

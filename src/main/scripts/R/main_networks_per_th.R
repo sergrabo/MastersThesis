@@ -8,6 +8,7 @@ source(paste0(func_path, "graph_from_grid.R"))
 source(paste0(func_path, "graph_world_network.R"))
 source(paste0(func_path, "plot_dist_corr.R"))
 source(paste0(func_path, "plot_measures.R"))
+source(paste0(func_path, "plot_communities.R"))
 
 
 
@@ -24,7 +25,6 @@ if(!dir.exists(corrnet_results_path)){dir.create(corrnet_results_path); cat(past
 # Define correlation thresholds
 by = 0.05
 thresholds <- seq(0, 1-by, by = by)
-# thresholds <- c(0.95, 0.9, 0.85)
   
 for(cor.th in rev(thresholds)){
   
@@ -64,21 +64,22 @@ for(cor.th in rev(thresholds)){
   
   
   
-  ######### Estudio de clustering en la red ##########
-  # # Compute communities through cluster_edge_betweenness
-  # start <- Sys.time()
-  # comObj <- cluster_edge_betweenness(unweighted.net$graph, directed = FALSE)
-  # end <- Sys.time()
-  # print(paste("Communities execution time: ", end-start))
-  # 
-  # com.file <- paste0(path, "/communities.Rdata")
-  # save(comObj, file = com.file)
-  # 
-  # plot.file <- paste0(path, "/CentralityMeasures.pdf")
-  # pdf(file = plot.file)
-  # 
-  # plot_communities(comObj, ref.grid = ba.5deg.std.anom, ref.mask = mask, th = 7, mute = TRUE)
-  # dev.off()
+  ######### Network Clustering ##########
+  # Compute communities through cluster_edge_betweenness
+  start <- Sys.time()
+  comObj <- cluster_edge_betweenness(unweighted.net$graph, directed = FALSE)
+  end <- Sys.time()
+  print(paste("Communities execution time: ", end-start))
+
+  com.file <- paste0(path, "/communities.Rdata")
+  save(comObj, file = com.file)
+
+  plot.file <- paste0(path, "/CommunitiesPlot.pdf")
+  pdf(file = plot.file)
+
+  p <- plot_communities(comObj, ref.grid = ba.5deg.std.anom, ref.mask = mask, th = 7, cor.th = cor.th, mute = TRUE)
+  print(p)
+  dev.off()
   
   
   cat("Plotted for th = ", cor.th, "\n")
