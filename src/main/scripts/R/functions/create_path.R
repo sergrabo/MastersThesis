@@ -13,10 +13,10 @@
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#' @title 
+#' @title Create path for a given threshold
 #' @description 
-#' @param 
-#' @return 
+#' @param th Correlation threshold to create the path for
+#' @return The created path string
 #' @author Sergio Gracia
 #' @references 
 #' 
