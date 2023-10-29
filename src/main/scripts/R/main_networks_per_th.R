@@ -65,21 +65,24 @@ for(cor.th in rev(thresholds)){
   
   
   ######### Network Clustering ##########
-  # Compute communities through cluster_edge_betweenness
-  start <- Sys.time()
-  comObj <- cluster_edge_betweenness(unweighted.net$graph, directed = FALSE)
-  end <- Sys.time()
-  print(paste("Communities execution time: ", end-start))
-
-  com.file <- paste0(path, "/communities.Rdata")
-  save(comObj, file = com.file)
-
-  plot.file <- paste0(path, "/CommunitiesPlot.pdf")
-  pdf(file = plot.file)
-
-  p <- plot_communities(comObj, ref.grid = ba.5deg.std.anom, ref.mask = mask, th = 7, cor.th = cor.th, mute = TRUE)
-  print(p)
-  dev.off()
+  # Compute communities through cluster_edge_betweenness for thresholds greater than 0.4
+  if(cor.th > 0.4){
+    start <- Sys.time()
+    comObj <- cluster_edge_betweenness(unweighted.net$graph, directed = FALSE)
+    end <- Sys.time()
+    print(paste("Communities execution time: ", end-start))
+    
+    com.file <- paste0(path, "/communities.Rdata")
+    save(comObj, file = com.file)
+    
+    plot.file <- paste0(path, "/CommunitiesPlot.pdf")
+    pdf(file = plot.file)
+    
+    p <- plot_communities(comObj, ref.grid = ba.5deg.std.anom, ref.mask = mask, th = 7, cor.th = cor.th, mute = TRUE)
+    print(p)
+    dev.off()
+  }
+  
   
   
   cat("Plotted for th = ", cor.th, "\n")
