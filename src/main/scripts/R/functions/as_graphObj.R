@@ -14,16 +14,14 @@
 #     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #' @title Transform graph to graphObj
-#' @description 
+#' @description Transforms an igraph Graph class including all necesary attributes for automatic plotting
 #' @param graph
-#' @param ref.graphObj
 #' @return graphObj
 #' @author Sergio Gracia
-#' @references https://www.r-bloggers.com/2018/05/three-ways-of-visualizing-a-graph-on-a-map/
 
-as.graphObj <- function(graph, ref.graphObj){
+as.graphObj <- function(graph){
   
-  out <- ref.graphObj
+  out <- list()
   out$graph <- graph
   out$correlation <- NULL
   out$adj.matrix <- graph %>% as_adj() %>% as.matrix

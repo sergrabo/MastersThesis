@@ -14,19 +14,18 @@
 #     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #' @title Load threshold data
-#' @description 
-#' @param graph 
-#' @param coords
-#' @param weighted
-#' @return 
+#' @description  Loads all the results obtained from the script `main_networks_per_th.R`
+#' @param results_path path where the results are stored. Should be './src/main/resources/results/CN_results/'
+#' @param thresholds Array with the values of the thresholds
+#' @return a List with the unweighted net, the weighted net, and a community object if th>0.4
 #' @author Sergio Gracia
 #' 
 #' 
 
+# Load create_path()
+source("src/main/scripts/R/functions/create_path.R")
+
 load_th_data <- function(results.path, thresholds){
-  
-  # Load create_path()
-  source("./scripts/MastersThesis/functions/create_path.R")
   
   # Define lists
   out = list()
