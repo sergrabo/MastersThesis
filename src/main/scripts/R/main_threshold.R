@@ -7,6 +7,7 @@ source(paste0(func_path, "create_path.R"))
 source(paste0(func_path, "load_th_data.R"))
 source(paste0(func_path, "plot_dendrograms.R"))
 source(paste0(func_path, "generate_random_networks.R"))
+source(paste0(func_path, "generate_attributes_table.R"))
 
 # Load pre-processed data
 data_dir="src/main/resources/input_data"
@@ -65,28 +66,8 @@ rand.conn <- random_generator_list$rand.conn
 complex.conn <- random_generator_list$complex.conn
 rnet.plot <- random_generator_list$rnet.plot
 
-# Tabla de atributos
-# a <- attributes(unwnet[[i]])[-(1:6)]
-a <- atts
-max.id <- which(1:length(a$total_range_dist)%%2 == 0)
-min.id <- which(1:length(a$total_range_dist)%%2 == 1)
-
-a$total_max_dist <- a$total_range_dist[max.id]
-a$pos_max_dist <- a$pos_range_dist[max.id]
-a$neg_max_dist <- a$neg_range_dist[max.id]
-
-a$total_min_dist <- a$total_range_dist[min.id]
-a$pos_min_dist <- a$pos_range_dist[min.id]
-a$neg_min_dist <- a$neg_range_dist[min.id]
-
-a$total_range_dist <- NULL
-a$pos_range_dist <- NULL
-a$neg_range_dist <- NULL
-a $ thresholds<- NULL
-
-df <- a %>% data.frame()
-print(xtable(df, type = "latex"), file = "tablaAtribs.tex")
-################################################
+# Save attributes in a table
+generate_attributes_table(atts, save_path=results_cn_path)
 
 ################# CLUSTERING COEFFICIENT AND DIAMETER VS THREHSOLD #################
 x11()
