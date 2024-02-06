@@ -2,7 +2,7 @@
 rm(list = ls())
 
 # Source functions
-func_path = "src/main/scripts/R/functions/"
+func_path = "src/main/scripts/R/CN/functions/"
 source(paste0(func_path, "create_path.R"))
 source(paste0(func_path, "graph_from_grid.R"))
 source(paste0(func_path, "graph_world_network.R"))

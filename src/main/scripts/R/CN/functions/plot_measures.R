@@ -22,7 +22,7 @@
 #' @references 
 #' 
 
-func_path = "src/main/scripts/R/functions/"
+func_path = "src/main/scripts/R/CN/functions/"
 source(paste(func_path, "graph2measure.R", sep="/"))
 source(paste(func_path, "quantity2clim.R", sep="/"))
 

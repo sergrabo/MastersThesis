@@ -30,7 +30,7 @@
 #' 
 
 library(igraph)
-source('src/main/scripts/R/functions/as_graphObj.R')
+source('src/main/scripts/R/CN/functions/as_graphObj.R')
 
 generate_random_networks <- function(thresholds, unwnet, atts, seed = 4){
   # Set seed

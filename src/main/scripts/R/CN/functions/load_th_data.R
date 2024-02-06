@@ -23,7 +23,7 @@
 #' 
 
 # Load create_path()
-source("src/main/scripts/R/functions/create_path.R")
+source("src/main/scripts/R/CN/functions/create_path.R")
 
 load_th_data <- function(results.path, thresholds){
   
