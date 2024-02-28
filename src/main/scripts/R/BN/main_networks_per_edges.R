@@ -35,7 +35,7 @@ for (m in 0:floor(edges_max/edges_added)) {
   path <- paste0(bn_results_path, "bayesian_network_objects/")
   if(!dir.exists(path)){dir.create(path); cat(paste("Created path", path, "\n"))}
   var_name <- paste0("firedata_hc_",i,"_",j,"i")
-  assign(var_name, BNobj$BN)
+  assign(var_name, BNobj)
   save(list = var_name, 
        file = paste0(path, var_name, ".Rdata"))
   
@@ -57,3 +57,6 @@ for (m in 0:floor(edges_max/edges_added)) {
 
 total.end <- Sys.time()
 print(paste0("Total elapsed time: ", total.end-total.ini))
+
+# Remove variables so nothing is loaded when the script ends
+rm(list = ls())
