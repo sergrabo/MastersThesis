@@ -4,3 +4,4 @@
 .Ruserdata
 src/main/resources/input_data/*.Rdata
 src/main/resources/results/CN_results/
+src/main/resources/results/BN_results/
