@@ -7,7 +7,7 @@ library(bnlearn)
 # Define results path
 results_path = "src/main/resources/results/"
 bn_results_path = paste0(results_path, "BN_results/")
-plots_path <- paste0(bn_results_path, "plots/")
+plots_path <- paste0(bn_results_path, "loglikelihood/")
 if(!dir.exists(plots_path)){dir.create(plots_path); cat(paste("Created path", plots_path, "\n"))}
 
 # Load trained bayesian networks into a list
