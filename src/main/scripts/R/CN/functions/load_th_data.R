@@ -41,7 +41,7 @@ load_th_data <- function(results.path, thresholds){
     load(net.path, verbose = TRUE)
     
     # Load communites
-    if(cor.th >= 0.4){
+    if(cor.th > 0.4){
       com.path <- paste0(path, "/communities.Rdata")
       load(com.path, verbose = TRUE)
     }else{

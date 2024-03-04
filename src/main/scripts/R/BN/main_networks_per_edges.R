@@ -13,7 +13,7 @@ load(paste0(data_dir, "/mask.Rdata"), verbose = TRUE)
 # Define results path
 results_path = "src/main/resources/results/"
 bn_results_path = paste0(results_path, "BN_results/")
-if(!dir.exists(bn_results_path)){dir.create(bn_results_path); cat(paste("Created path", bn_path, "\n"))}
+if(!dir.exists(bn_results_path)){dir.create(bn_results_path); cat(paste("Created path", bn_results_path, "\n"))}
 
 # Define loop parameters
 start <- NULL
@@ -40,7 +40,7 @@ for (m in 0:floor(edges_max/edges_added)) {
        file = paste0(path, var_name, ".Rdata"))
   
   t.end <- Sys.time()
-  print(paste0("Elapsed time on BN training: ", t.end-t.ini))
+  print(paste0("Elapsed time on BN training: ", difftime(t.end, t.ini, units = "mins") %>% round(2)," minutes", " on network ", var_name))
   
   attr(BNobj, "elapsed_time") <- t.end-t.ini
   

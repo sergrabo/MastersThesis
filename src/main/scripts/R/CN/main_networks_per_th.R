@@ -20,7 +20,7 @@ load(paste0(data_dir, "/mask.Rdata"), verbose = TRUE)
 # Define results path
 results_path = "src/main/resources/results/"
 corrnet_results_path = paste0(results_path, "CN_results/")
-if(!dir.exists(corrnet_results_path)){dir.create(corrnet_results_path); cat(paste("Created path", corrnet_path, "\n"))}
+if(!dir.exists(corrnet_results_path)){dir.create(corrnet_results_path); cat(paste("Created path", corrnet_results_path, "\n"))}
 
 # Define correlation thresholds
 by = 0.05
